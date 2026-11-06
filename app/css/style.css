@@ -1310,3 +1310,7 @@ body.wm-max-open .tabbar, body.wm-max-open .topbar { visibility: hidden; }
 .game-feature.daily { background: linear-gradient(135deg, var(--navy), var(--navy-2)); color: #fff; }
 .game-feature.daily small { color: var(--sky); }
 .game-feature.daily span:not(.btn):not(.temoji) { color: #c9d6ee; }
+
+.gear-icon .g-dyneema { fill: none; stroke: #8fa3b8; stroke-width: 5; stroke-linecap: round; }
+.gear-icon .g-knot { fill: #8fa3b8; stroke: var(--navy); stroke-width: 1.8; }
+.gear-icon .g-knotline { stroke: var(--navy); stroke-width: 1.2; }

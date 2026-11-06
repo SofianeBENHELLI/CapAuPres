@@ -56,6 +56,7 @@ export const TERMS = [
   { id: 'coinceur', term: 'Taquet coinceur', cat: 'accastillage', icon: 'coinceur', def: 'Deux mâchoires crantées qui bloquent un cordage d’un simple geste vers le bas, et le libèrent en le soulevant. Pratique pour garder une écoute réglée.', note: { optimist: 'L’Optimist a souvent une poulie à cliquet plutôt qu’un coinceur : on garde l’écoute en main.' } },
   { id: 'winch', term: 'Winch', cat: 'accastillage', icon: 'winch', def: 'Tambour qui tourne dans un seul sens, avec une manivelle : il aide à border une écoute très chargée.', boats: ['j80'] },
   { id: 'manille', term: 'Manille', cat: 'accastillage', icon: 'manille', def: 'Anneau en métal qui se ferme par une vis : il relie une voile, une poulie ou un cordage.' },
+  { id: 'manillesouple', term: 'Manille souple (Dyneema)', cat: 'accastillage', icon: 'manillesouple', boats: ['deriveur', 'catamaran', 'j80'], def: 'Une boucle en cordage Dyneema fermée par un gros nœud : on passe la boucle par-dessus le nœud. Elle s’ouvre à la main, sans outil, et remplace la manille en métal : aussi solide, plus légère, elle ne raye rien. Pour fixer une poulie, un point d’écoute ou d’amure.' },
   { id: 'chariot', term: 'Chariot (rail d’écoute)', cat: 'accastillage', icon: 'chariot', def: 'Rail sur lequel glisse la poulie d’écoute de grand-voile : on le déplace pour régler la voile sans changer l’écoute.', boats: ['catamaran', 'j80', 'deriveur'], note: { deriveur: 'Selon les modèles de dériveur.', catamaran: 'Sur le Hobie 16, il est sur la poutre arrière.' } },
 
   // ---- Les réglages

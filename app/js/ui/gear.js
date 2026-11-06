@@ -10,6 +10,7 @@ export const GEAR_ICONS = {
   poulie: `<circle r="13" class="g-metal"/><circle r="7" class="g-dark"/><circle r="2.5" class="g-metal"/><path d="M-6,-22 L-6,-12 A13,13 0 0 0 -13,0" class="g-rope" fill="none"/><path d="M-14,-12 L14,-12 M0,-12 L0,-21" class="g-dark-line"/>`,
   winch: `<path d="M-14,14 L-11,-10 L11,-10 L14,14 Z" class="g-metal"/><rect x="-11" y="-16" width="22" height="7" rx="3" class="g-dark"/><path d="M-12,2 L12,-2 M-13,8 L13,4" class="g-rope"/><path d="M0,-16 L0,-22 L16,-22" class="g-dark-line"/>`,
   manille: `<path d="M-10,8 L-10,-6 A10,10 0 0 1 10,-6 L10,8" class="g-shackle"/><rect x="-15" y="8" width="30" height="6" rx="3" class="g-dark"/>`,
+  manillesouple: `<path d="M0,2 C-20,2 -21,-21 0,-21 C21,-21 20,2 0,2" class="g-dyneema"/><path d="M-5,2 C-9,8 -6,13 -2,14 M5,2 C9,8 6,13 2,14" class="g-dyneema"/><circle cy="15" r="7" class="g-knot"/><path d="M-4,12 L4,18 M4,12 L-4,18" class="g-knotline"/>`,
   chariot: `<rect x="-22" y="6" width="44" height="6" rx="3" class="g-dark"/><rect x="-7" y="-2" width="14" height="10" rx="2" class="g-metal"/><circle cy="-8" r="6" class="g-metal"/><path d="M0,-14 L0,-22" class="g-rope"/><path d="M-20,9 L-28,9 M20,9 L28,9" class="g-arrow"/>`,
 };
 
