@@ -45,12 +45,15 @@ export function render(root, params = []) {
           <p class="muted" style="margin:0">${g.blocked ? 'Tu as les XP : il reste à le prouver sur l’eau.' : `Il faudra aussi ${g.next.xp} XP.`}</p>
           <ul class="exam-list">${examChecks(g.next.exam).map((c) => `<li class="${c.ok ? 'ok' : ''}">${c.ok ? '✅' : '⬜'} ${c.ok ? c.label : `<a href="${c.href}">${c.label}</a>`}</li>`).join('')}</ul>
         </div>` : ''}
-        <details><summary class="muted">Tous les grades et ce qu’ils débloquent</summary>
-          <ol class="grades">${GRADES.map((x, i) => {
-            const perks = perksOf(i);
-            return `<li class="${i <= g.index ? 'ok' : ''}">${x.icon} ${x.name} <small class="muted">${x.xp} XP${x.exam ? ' + épreuve' : ''}</small>${perks.length ? `<span class="perk">🎨 ${perks.join(' · ')}</span>` : ''}</li>`;
-          }).join('')}</ol>
-        </details>
+        <h3 class="ladder-title">Du Moussaillon à l’Amiral</h3>
+        <ol class="ladder">${GRADES.map((x, i) => {
+          const perks = perksOf(i);
+          const state = i < g.index ? 'done' : i === g.index ? 'cur' : i === g.index + 1 ? 'next' : '';
+          const left = Math.max(0, x.xp - xp.total);
+          return `<li class="${state}"><span class="lad-ico">${x.icon}</span><div class="grow"><b>${x.name}</b>
+            <small class="muted">${i <= g.index ? (i === g.index ? 'Ton grade actuel' : 'Obtenu') : `${x.xp} XP${x.exam ? ' + épreuve' : ''} · encore ${left} XP`}</small>
+            ${perks.length ? `<span class="perk">🎨 ${perks.join(' · ')}</span>` : ''}</div>${i < g.index ? '<span class="lad-ok">✓</span>' : ''}</li>`;
+        }).join('')}</ol>
       </section>
 
       <section class="card look-card" id="look">
@@ -63,7 +66,7 @@ export function render(root, params = []) {
         <div class="row" style="justify-content:space-between"><h3 style="margin:0">Badges</h3><span class="pill">${badges.size} / ${BADGES.length}</span></div>
         <div class="badge-grid">
           ${BADGES.map((b) => `<div class="badge ${badges.has(b.id) ? 'got' : ''}" title="${b.how}">
-            <span class="bicon">${badges.has(b.id) ? b.icon : '🔒'}</span><b>${b.name}</b><small>${b.how}</small></div>`).join('')}
+            <span class="bicon">${b.icon}</span>${badges.has(b.id) ? '' : '<span class="block">🔒</span>'}<b>${b.name}</b><small>${b.how}</small></div>`).join('')}
         </div>
       </section>
 

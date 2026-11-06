@@ -30,7 +30,7 @@ function renderPath(root) {
   const done = LESSONS.filter((l) => store.lesson(l.id)?.done).length;
   const current = LESSONS.find((l) => !store.lesson(l.id)?.done);
   root.innerHTML = `
-    <div class="section-title"><h1>Apprendre</h1><span class="pill">🎓 ${done} / ${LESSONS.length} leçons</span></div>
+    <div class="section-title"><h1>École</h1><span class="pill">🎓 ${done} / ${LESSONS.length} leçons</span></div>
     <p class="muted" style="margin-top:-6px">Sept leçons pour comprendre le vent, ton bateau, ses nœuds et la baie. Chaque leçon se valide par un petit quiz (${PASS} % de bonnes réponses) et rapporte <b>${XP.lesson} XP</b>, +${XP.perfectQuiz} XP pour un sans-faute.</p>
     ${dueItems(store.srs).length ? `<a class="card review-banner" href="#/apprendre/revision"><span>🔁</span><div><b>Révisions du jour : ${dueItems(store.srs).length} question${dueItems(store.srs).length > 1 ? 's' : ''}</b><span class="muted">Les questions ratées reviennent jusqu’à ce qu’elles soient acquises.</span></div><span class="btn primary small">Réviser</span></a>` : ''}
     <div class="learn-layout">

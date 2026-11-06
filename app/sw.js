@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b2-vent-houle';
+const VERSION = 'b3-ecole-grades';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',

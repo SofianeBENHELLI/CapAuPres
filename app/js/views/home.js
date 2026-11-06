@@ -78,13 +78,13 @@ export function render(root) {
   <div class="next-grid">
     ${nextLesson ? `
     <a class="card next-card learn" href="#/apprendre/${nextLesson.id}">
-      <span class="ntag">📖 Apprendre · Leçon ${nextLesson.num}/${LESSONS.length}</span>
+      <span class="ntag">📖 École · Leçon ${nextLesson.num}/${LESSONS.length}</span>
       <h3>${nextLesson.icon} ${nextLesson.title}</h3>
       <p class="muted">${nextLesson.summary}</p>
       <span class="btn primary">Commencer la leçon →</span>
     </a>` : `
     <a class="card next-card learn" href="#/apprendre">
-      <span class="ntag">📖 Apprendre</span>
+      <span class="ntag">📖 École</span>
       <h3>🎓 Toutes les leçons sont validées !</h3>
       <p class="muted">Révise quand tu veux, ou entraîne-toi au réglage dans l’atelier.</p>
       <span class="btn">Revoir les leçons</span>

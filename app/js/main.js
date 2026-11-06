@@ -56,7 +56,7 @@ refreshChips();
 const ROUTES = {
   home, bateau: boat, apprendre: learn, naviguer: play, mission: game, defi: game, reflexes, profil: profile, barre: live, regate: live, seance: session, conditions,
 };
-const NAV_OF = { mission: 'naviguer', defi: 'naviguer', reflexes: 'naviguer', barre: 'naviguer', regate: 'naviguer', bateau: 'profil', seance: 'profil', conditions: 'home' };
+const NAV_OF = { mission: 'naviguer', defi: 'naviguer', reflexes: 'naviguer', barre: 'naviguer', regate: 'naviguer', bateau: 'profil', seance: 'profil', conditions: 'conditions' };
 // Anciennes adresses (versions précédentes, raccourcis installés).
 const LEGACY = { theorie: 'apprendre', parcours: 'naviguer', lexique: 'apprendre/matelotage/lexique', noeuds: 'apprendre/matelotage/noeuds' };
 
