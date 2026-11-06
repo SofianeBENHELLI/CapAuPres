@@ -1,0 +1,105 @@
+{
+  "id": "./",
+  "name": "Cap au Près — École de voile du CNBPP",
+  "short_name": "Cap au Près",
+  "description": "Apprendre la voile en jouant dans la baie de La Baule avec le CNBPP : leçons, réflexes et missions au départ du Pouliguen.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./?source=pwa#/",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#243150",
+  "theme_color": "#243150",
+  "categories": [
+    "education",
+    "games",
+    "sports"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Naviguer",
+      "short_name": "Naviguer",
+      "description": "Les missions dans la baie",
+      "url": "./?source=shortcut#/naviguer",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Apprendre",
+      "short_name": "Apprendre",
+      "description": "Les leçons et les quiz",
+      "url": "./?source=shortcut#/apprendre",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Défi du jour",
+      "short_name": "Défi du jour",
+      "description": "Le parcours du jour",
+      "url": "./?source=shortcut#/defi/2/today",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Réflexes",
+      "short_name": "Réflexes",
+      "description": "Mini-jeux chronométrés",
+      "url": "./?source=shortcut#/reflexes",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

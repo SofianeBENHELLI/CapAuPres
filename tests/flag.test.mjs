@@ -1,0 +1,32 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { flagFor } from '../app/js/core/conditions.js';
+
+const s = (kn, gust, from, h = 0.8, extra = {}) => ({ wind: { kn, gust, from }, waves: { height: h }, ...extra });
+const BOATS = ['optimist', 'deriveur', 'catamaran', 'j80'];
+
+test('le drapeau est le même pour tous les bateaux', () => {
+  for (const c of [s(8, 12, 240), s(15, 20, 30), s(19, 25, 250), s(24, 31, 270), s(30, 40, 250)]) {
+    const colors = BOATS.map((b) => flagFor(c, b).color);
+    assert.equal(new Set(colors).size, 1, JSON.stringify(c));
+  }
+});
+test('le vent de terre ne relève pas le drapeau, il donne un avertissement', () => {
+  const terre = flagFor(s(12, 16, 30));
+  const mer = flagFor(s(12, 16, 240));
+  assert.equal(terre.color, 'green');
+  assert.equal(terre.color, mer.color);
+  assert.ok(terre.warnings.some((w) => /vent de terre/.test(w) && /rentrée/.test(w)));
+});
+test('paliers de vent et de vagues', () => {
+  assert.equal(flagFor(s(14, 20, 250)).color, 'green');
+  assert.equal(flagFor(s(18, 24, 250)).color, 'yellow');
+  assert.equal(flagFor(s(24, 30, 250)).color, 'red');
+  assert.equal(flagFor(s(30, 38, 250)).color, 'black');
+  assert.equal(flagFor(s(10, 14, 250, 2.5)).color, 'yellow');
+  assert.equal(flagFor(s(10, 14, 250, 3.5)).color, 'red');
+});
+test('nuit et orage restent prioritaires', () => {
+  assert.equal(flagFor(s(10, 14, 250, 0.5, { night: true })).color, 'night');
+  assert.equal(flagFor(s(10, 14, 250, 0.5, { sky: { label: 'Orage' } })).color, 'black');
+});

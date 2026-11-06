@@ -1,1 +1,11 @@
-{"type":"module"}
+{
+  "name": "capaupres",
+  "private": true,
+  "type": "module",
+  "description": "Cap au Près : apprendre la voile en jouant dans la baie de La Baule avec le CNBPP",
+  "scripts": {
+    "start": "npx serve app -l 8642",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
