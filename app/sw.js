@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b5-sauvegarde-en-ligne';
+const VERSION = 'b6-pseudo';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',

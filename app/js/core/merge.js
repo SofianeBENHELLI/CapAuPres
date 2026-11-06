@@ -3,7 +3,7 @@
 // jamais perdre de progression. Partagé par l'appli et par la fonction serveur.
 
 // Champs propres à l'appareil, jamais envoyés au serveur.
-// Le prénom et la date de naissance restent sur l'appareil : le serveur ne garde que la progression.
+// Le pseudo et la date de naissance restent sur l'appareil : le serveur ne garde que la progression.
 export const LOCAL_ONLY = ['name', 'birth', 'cloud', 'lastBackup', 'seenXp', 'sessions', 'mySession'];
 
 export function cloudPayload(profile) {
@@ -48,7 +48,7 @@ export function mergeProfiles(a, b) {
   };
 }
 
-// Clé du profil en ligne : empreinte du prénom et de la date de naissance (le serveur ne
+// Clé du profil en ligne : empreinte du pseudo et de la date de naissance (le serveur ne
 // reçoit jamais ni l'un ni l'autre). « Léo », « leo » et « LÉO » donnent la même clé.
 export function normalizeName(name) {
   return String(name || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -56,7 +56,7 @@ export function normalizeName(name) {
 
 export async function cloudKey(name, birth) {
   const n = normalizeName(name);
-  if (!n || !/^\d{4}-\d{2}-\d{2}$/.test(birth)) throw new Error('Prénom et date de naissance requis.');
+  if (!n || !/^\d{4}-\d{2}-\d{2}$/.test(birth)) throw new Error('Pseudo et date de naissance requis.');
   const bytes = new TextEncoder().encode(`capaupres|${n}|${birth}`);
   const h = await crypto.subtle.digest('SHA-256', bytes);
   return [...new Uint8Array(h)].map((x) => x.toString(16).padStart(2, '0')).join('');

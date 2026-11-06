@@ -1,4 +1,4 @@
-// Profil : prénom, grade et XP, badges, progression par bateau, records.
+// Profil : pseudo, grade et XP, badges, progression par bateau, records.
 import { BOAT_LIST, getBoat } from '../core/boats.js';
 import { LEVELS } from '../core/levels.js';
 import { LESSONS } from '../data/lessons.js';
@@ -28,8 +28,8 @@ export function render(root, params = []) {
           <span class="pc-icon">${g.icon}</span>
           <div class="grow">
             <div class="id-fields">
-              <label class="name-field">Prénom
-                <input id="pname" maxlength="24" autocomplete="given-name" value="${esc(store.name)}" placeholder="Ton prénom" />
+              <label class="name-field">Pseudo
+                <input id="pname" maxlength="24" autocomplete="nickname" value="${esc(store.name)}" placeholder="Ton pseudo" />
               </label>
               <label class="name-field">Date de naissance
                 <input id="pbirth" type="date" min="1920-01-01" max="${new Date().toISOString().slice(0, 10)}" value="${esc(store.birth)}" />
@@ -103,8 +103,8 @@ export function render(root, params = []) {
           const b = p.boat && BOAT_LIST.find((x) => x.id === p.boat);
           return `<li class="${p.current ? 'cur' : ''}">
             <span>${b ? boatIcon(b.id, 26) : '⛵'}</span>
-            <div class="grow"><b>${esc(p.name || 'Sans prénom')}</b><small class="muted">${b ? b.name : 'pas de bateau'} · ${p.missions} mission${p.missions > 1 ? 's' : ''} · ${p.lessons} leçon${p.lessons > 1 ? 's' : ''}${p.updated ? ` · ${dateFr(p.updated)}` : ''}</small></div>
-            ${p.current ? '<span class="pill">C’est moi</span>' : `<button class="btn small" data-open="${p.id}">Reprendre</button><button class="btn small ghost" data-del="${p.id}" aria-label="Supprimer le profil ${esc(p.name || 'sans prénom')}">🗑</button>`}
+            <div class="grow"><b>${esc(p.name || 'Sans pseudo')}</b><small class="muted">${b ? b.name : 'pas de bateau'} · ${p.missions} mission${p.missions > 1 ? 's' : ''} · ${p.lessons} leçon${p.lessons > 1 ? 's' : ''}${p.updated ? ` · ${dateFr(p.updated)}` : ''}</small></div>
+            ${p.current ? '<span class="pill">C’est moi</span>' : `<button class="btn small" data-open="${p.id}">Reprendre</button><button class="btn small ghost" data-del="${p.id}" aria-label="Supprimer le profil ${esc(p.name || 'sans pseudo')}">🗑</button>`}
           </li>`;
         }).join('')}</ul>
         <button class="btn small" id="newProfile">➕ Nouveau marin sur cet appareil</button>
@@ -132,10 +132,10 @@ export function render(root, params = []) {
     const hm = (t) => new Date(t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     el.className = `cloud-line cloud-${!store.name || !store.birth ? 'off' : st.state}`;
     el.innerHTML = !store.name || !store.birth
-      ? '☁️ Renseigne ton prénom et ta date de naissance : ta progression sera sauvegardée en ligne et tu la retrouveras sur tous tes appareils.'
+      ? '☁️ Renseigne ton pseudo et ta date de naissance : ta progression sera sauvegardée en ligne et tu la retrouveras sur tous tes appareils.'
       : st.state === 'sync' ? '☁️ Sauvegarde en ligne…'
       : st.state === 'error' ? `☁️ Pas de connexion au serveur (${esc(st.error)}) : la sauvegarde partira dès que possible.`
-      : `☁️ Sauvegardé en ligne${st.at || store.cloud?.at ? ` à ${hm(st.at || store.cloud.at)}` : ''}. Sur un autre appareil, mets le même prénom et la même date de naissance.`;
+      : `☁️ Sauvegardé en ligne${st.at || store.cloud?.at ? ` à ${hm(st.at || store.cloud.at)}` : ''}. Sur un autre appareil, mets le même pseudo et la même date de naissance.`;
   };
   cloudLine();
   window.addEventListener('cloudstatus', cloudLine);
@@ -187,7 +187,7 @@ export function render(root, params = []) {
       const p = await pickBackup();
       if (!p) return;
       const same = store.profiles().find((x) => x.id === p.pid);
-      const what = `${p.name || 'Sans prénom'} : ${Object.keys(p.levels || {}).length} missions, ${Object.keys(p.lessons || {}).length} leçons`;
+      const what = `${p.name || 'Sans pseudo'} : ${Object.keys(p.levels || {}).length} missions, ${Object.keys(p.lessons || {}).length} leçons`;
       const q = same
         ? `Remplacer la progression de ${same.name || 'ce marin'} sur cet appareil par la sauvegarde (${what}) ?`
         : `Reprendre la sauvegarde de ${what} ? La progression actuelle reste dans « Qui navigue ».`;
@@ -198,7 +198,7 @@ export function render(root, params = []) {
     }
   });
   root.querySelector('#reset').addEventListener('click', () => {
-    if (!window.confirm('Effacer toutes tes étoiles, leçons, records et badges ? (Ton prénom et ton bateau sont conservés.)')) return;
+    if (!window.confirm('Effacer toutes tes étoiles, leçons, records et badges ? (Ton pseudo et ton bateau sont conservés.)')) return;
     store.reset();
     resetCloud();
     window.dispatchEvent(new CustomEvent('progress'));

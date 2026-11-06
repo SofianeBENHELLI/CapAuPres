@@ -1,7 +1,7 @@
 // Sauvegarde en ligne des profils (Cloudflare Pages Functions + KV).
 //   GET /api/profil/:key   lit le profil
 //   PUT /api/profil/:key   fusionne le profil envoyé avec celui du serveur, enregistre et renvoie le résultat
-// `key` est l'empreinte SHA-256 (calculée dans le navigateur) du prénom et de la date de naissance :
+// `key` est l'empreinte SHA-256 (calculée dans le navigateur) du pseudo et de la date de naissance :
 // le serveur ne voit jamais ni l'un ni l'autre. Il la re-hache avec un secret (PEPPER) avant de
 // l'utiliser comme clé KV, pour qu'une copie de la base ne permette pas de retrouver les élèves.
 import { mergeProfiles, cloudPayload } from '../../../app/js/core/merge.js';

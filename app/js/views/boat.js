@@ -1,4 +1,4 @@
-// Accueil du premier lancement (prénom + bateau) et changement de bateau ensuite.
+// Accueil du premier lancement (pseudo + bateau) et changement de bateau ensuite.
 import { BOAT_LIST, setBoat, boatId } from '../core/boats.js';
 import { bestVmgAngles } from '../core/polar.js';
 import { getTrim } from '../data/trim.js';
@@ -21,12 +21,12 @@ export function render(root, params) {
       <div>
         <h1>Bienvenue à bord !</h1>
         <p>L’école de voile du <b>Cercle Nautique La Baule – Le Pouliguen – Pornichet</b> dans ta poche : apprends la théorie, entraîne tes réflexes, puis navigue dans la baie de La Baule.</p>
-        <label class="name-field">Ton prénom (facultatif)
-          <input id="pname" maxlength="24" autocomplete="given-name" placeholder="Ex. Léa" value="${esc(store.name)}" />
+        <label class="name-field">Ton pseudo
+          <input id="pname" maxlength="24" autocomplete="nickname" placeholder="Ex. Moussaillon44" value="${esc(store.name)}" />
         </label>
         <div class="cloud-restore">
           <b>☁️ Tu as déjà joué sur un autre appareil ?</b>
-          <span class="muted">Mets ton prénom ci-dessus et ta date de naissance : ta progression revient.</span>
+          <span class="muted">Mets ton pseudo ci-dessus et ta date de naissance : ta progression revient.</span>
           <div class="row">
             <input id="rbirth" type="date" min="1920-01-01" max="${new Date().toISOString().slice(0, 10)}" aria-label="Date de naissance" />
             <button class="btn small primary" id="cloudRestore">Retrouver ma progression</button>
@@ -35,7 +35,7 @@ export function render(root, params) {
         </div>
         <div class="comeback">
           <b>Déjà venu·e ?</b>
-          ${others.map((p) => `<button class="btn small" data-open="${p.id}">⛵ Reprendre ${esc(p.name || 'le profil sans prénom')}</button>`).join('')}
+          ${others.map((p) => `<button class="btn small" data-open="${p.id}">⛵ Reprendre ${esc(p.name || 'le profil sans pseudo')}</button>`).join('')}
           <button class="btn small ghost" id="restore">⬆️ Reprendre une sauvegarde</button>
           <small class="save-msg bad" id="saveMsg" role="status"></small>
         </div>
@@ -81,14 +81,14 @@ export function render(root, params) {
     const birth = root.querySelector('#rbirth').value;
     const m = root.querySelector('#cloudMsg');
     const say = (t, bad) => { m.textContent = t; m.classList.toggle('bad', !!bad); };
-    if (!name || !birth) return say('Il faut ton prénom et ta date de naissance.', true);
+    if (!name || !birth) return say('Il faut ton pseudo et ta date de naissance.', true);
     e.target.disabled = true;
     say('Recherche…');
     try {
       const remote = await peek(name, birth);
       if (!remote) {
         e.target.disabled = false;
-        return say('Aucune progression trouvée avec ce prénom et cette date de naissance.', true);
+        return say('Aucune progression trouvée avec ce pseudo et cette date de naissance.', true);
       }
       openProfile(() => {
         store.setName(name);

@@ -1,4 +1,4 @@
-// Sauvegarde en ligne : dès que le prénom et la date de naissance sont renseignés, la progression
+// Sauvegarde en ligne : dès que le pseudo et la date de naissance sont renseignés, la progression
 // est envoyée au serveur après chaque changement, et récupérée au démarrage. Le serveur fusionne
 // (meilleur score de chaque côté) : plusieurs appareils peuvent jouer sans s'écraser.
 import { store } from '../store.js';
