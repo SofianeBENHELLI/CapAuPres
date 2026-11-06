@@ -39,7 +39,7 @@ Après une modification des fichiers de l'app, incrémenter `VERSION` dans `app/
 
 ## Déploiement (Cloudflare Pages)
 
-Automatique via GitHub Actions (`.github/workflows/deploy.yml`) à chaque push : `main` part en production sur https://capaupres.pages.dev, les autres branches en préversion. Prérequis : secret de dépôt `CLOUDFLARE_API_TOKEN` (permission Cloudflare Pages : Edit).
+Automatique : le projet Pages `capaupres` est relié au dépôt GitHub (dossier publié `app/`, pas de build). Chaque push sur `main` part en production sur https://capaupres.pages.dev, chaque autre branche en préversion sur `https://<branche>.capaupres.pages.dev`. GitHub Actions ne fait que lancer les tests.
 
 En manuel :
 
