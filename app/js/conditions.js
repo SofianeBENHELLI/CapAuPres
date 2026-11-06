@@ -4,7 +4,7 @@
 export const LEVELS = [
   { id: 'calme', label: 'Petit temps', color: '#8fb8d0', advice: 'Peu de vent : idéal pour les débutants et le travail des réglages fins.' },
   { id: 'bon', label: 'Bonnes conditions', color: '#2fb36d', advice: 'Conditions idéales pour naviguer dans la baie.' },
-  { id: 'vigilance', label: 'Vigilance', color: '#f2b705', advice: 'Navigable avec un peu d\'attention : on reste groupés et on prend des ris ou on choque.' },
+  { id: 'vigilance', label: 'Vigilance', color: '#f2b705', advice: 'Navigable avec un peu d\'attention : on reste groupés et on choque dans les rafales.' },
   { id: 'engage', label: 'Engagé', color: '#f07c1e', advice: 'Pour équipages confirmés, avec encadrement sur l\'eau.' },
   { id: 'tres-engage', label: 'Très engagé', color: '#e5484d', advice: 'Hors programme école : décision du chef de base.' },
 ];
@@ -33,9 +33,9 @@ export function windSector(twd) {
 function windLevel(tws, gust) {
   const eff = Math.max(tws, (gust ?? tws) * 0.82);
   if (eff < 6) return 'calme';
-  if (eff < 17) return 'bon';
-  if (eff < 22) return 'vigilance';
-  if (eff < 28) return 'engage';
+  if (eff < 18) return 'bon';
+  if (eff < 23) return 'vigilance';
+  if (eff < 29) return 'engage';
   return 'tres-engage';
 }
 

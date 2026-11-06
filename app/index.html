@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cap au Près · École de voile CNBPP</title>
+  <meta name="description" content="Apprends la voile dans la baie de La Baule : simulateur, missions, leçons et météo du jour du Club Nautique Baule Pouliguen Pornichet.">
+  <meta name="theme-color" content="#243150">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <a class="skip" href="#view">Aller au contenu</a>
+  <header class="top">
+    <a class="brand" href="#accueil" aria-label="Accueil">
+      <img src="icons/icon.svg" alt="" width="36" height="36">
+      <span><b>Cap au Près</b><small>École de voile CNBPP</small></span>
+    </a>
+    <nav class="nav" aria-label="Navigation principale">
+      <a href="#accueil" data-nav="accueil"><span>🏠</span>Accueil</a>
+      <a href="#missions" data-nav="missions"><span>🧭</span>Missions</a>
+      <a href="#ecole" data-nav="ecole"><span>📚</span>École</a>
+      <a href="#meteo" data-nav="meteo"><span>🌤️</span>Météo</a>
+      <a href="#flotte" data-nav="flotte"><span>⛵</span>Flotte</a>
+      <a href="#profil" data-nav="profil"><span>🎖️</span>Carnet</a>
+    </nav>
+    <div id="rank-chip" class="rank-chip"></div>
+  </header>
+  <main id="view" tabindex="-1"></main>
+  <div id="toasts" aria-live="polite"></div>
+  <div id="update" class="update" hidden>Nouvelle version disponible <button class="btn primary">Mettre à jour</button></div>
+  <noscript>Cette application a besoin de JavaScript.</noscript>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

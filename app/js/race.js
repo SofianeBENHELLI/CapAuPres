@@ -38,7 +38,7 @@ export function createRace(mission, boatId, opts = {}) {
     if (s.inBand && s.speed > 5.2) race.bandSpeeding += dt;
     race.warnShoal = shoalWarning(s);
     const m = race.target();
-    if (Math.hypot(s.x - m.x, s.y - m.y) < m.r) {
+    if (m && Math.hypot(s.x - m.x, s.y - m.y) < m.r) {
       ev.push({ type: 'mark', idx: race.markIdx, label: m.label });
       race.markIdx++;
       if (race.markIdx >= mission.marks.length) { race.done = true; ev.push({ type: 'finish', time: race.time }); }
