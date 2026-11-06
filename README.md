@@ -28,7 +28,16 @@ Après une modification, changer `VERSION` dans `app/sw.js` pour que les apparei
 
 ## Déploiement
 
-Projet Cloudflare Pages `capaupres` relié au dépôt (dossier publié `app/`, sans build) : `main` en production sur https://capaupres.pages.dev, les autres branches en préversion.
+On travaille directement sur `main`. Le projet Cloudflare Pages `capaupres` est relié au dépôt (dossier publié `app/`, sans build), servi sur https://voile.benhelli.org, avec la **publication automatique désactivée** : un push sur `main` ne met rien en ligne.
+
+Publier la dernière version de `main`, à la demande :
+
+```bash
+curl -X POST "https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/pages/projects/capaupres/deployments" \
+  -H "Authorization: Bearer <TOKEN>" -F branch=main
+```
+
+(ou bouton « Create deployment » dans le tableau de bord Cloudflare Pages). Penser à changer `VERSION` dans `app/sw.js` à chaque publication.
 
 ## Sauvegarde en ligne
 
