@@ -1,0 +1,22 @@
+{
+  "name": "Cap au Près · École de voile CNBPP",
+  "short_name": "Cap au Près",
+  "description": "Apprends la voile dans la baie de La Baule.",
+  "lang": "fr",
+  "start_url": "./#accueil",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#243150",
+  "theme_color": "#243150",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Météo du jour", "url": "./#meteo" },
+    { "name": "Missions", "url": "./#missions" },
+    { "name": "Réflexes", "url": "./#ecole/reflexes" }
+  ]
+}

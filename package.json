@@ -1,1 +1,15 @@
-{"type":"module"}
+{
+  "name": "capaupres",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cap au Près : jeu éducatif de voile dans la baie de La Baule pour le CNBPP",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "refs": "node scripts/compute-refs.mjs --write",
+    "icons": "node scripts/icons.mjs",
+    "deploy": "npx wrangler pages deploy app --project-name capaupres"
+  },
+  "engines": { "node": ">=20" }
+}

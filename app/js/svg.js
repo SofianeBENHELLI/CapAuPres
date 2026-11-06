@@ -13,7 +13,7 @@ export function boatSvg(hdg, twd, { color = '#243150', sail = true, label = '', 
   const sh = sheet ?? Math.max(0.05, Math.min(1, 1 - (ta - 42) / 138));
   const boom = ta < 40 ? 0 : (1 - sh) * 85 + 5;
   const side = twa > 0 ? -1 : 1; // la bôme part sous le vent
-  const sailEl = sail ? `<path d="M0 ${-8 * scale} Q ${side * 6 * scale} ${4 * scale} 0 ${18 * scale}" transform="rotate(${side * boom} 0 ${-8 * scale})" stroke="#64C5F1" stroke-width="${3 * scale}" fill="none" stroke-linecap="round"/>` : '';
+  const sailEl = sail ? `<path d="M0 ${-8 * scale} Q ${side * 6 * scale} ${4 * scale} 0 ${18 * scale}" transform="rotate(${-side * boom} 0 ${-8 * scale})" stroke="#64C5F1" stroke-width="${3 * scale}" fill="none" stroke-linecap="round"/>` : '';
   return `<g transform="translate(${x} ${y}) rotate(${hdg})"><path d="${boatPath(scale)}" fill="#fff" stroke="${color}" stroke-width="2"/>${sailEl}</g>${label ? `<text x="${x}" y="${y + 38 * scale}" text-anchor="middle" font-size="12" fill="currentColor">${label}</text>` : ''}`;
 }
 

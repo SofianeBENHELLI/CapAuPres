@@ -60,7 +60,19 @@ export function createWindField(cfg) {
     return { twd: ((dir % 360) + 360) % 360, tws: Math.max(0, speed), gust: g };
   }
 
-  return { cfg, at, patches };
+  // Positions des risées à l'instant t (pour l'affichage).
+  function positions(t) {
+    const rad = ((cfg.twd + 180) * Math.PI) / 180;
+    const drift = tws * 0.514 * 0.6 * t;
+    return patches.map((p) => {
+      let px = p.x + Math.sin(rad) * drift, py = p.y + Math.cos(rad) * drift;
+      px = BOUNDS.minX + ((((px - BOUNDS.minX) % W) + W) % W);
+      py = BOUNDS.minY + ((((py - BOUNDS.minY) % H) + H) % H);
+      return { x: px, y: py, rad: p.rad, k: p.k };
+    });
+  }
+
+  return { cfg, at, patches, positions };
 }
 
 // Houle atténuée dans l'ouest de la baie, abrité par Penchâteau et Les Évens.
