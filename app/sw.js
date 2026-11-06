@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b4-meteo-creneaux';
+const VERSION = 'b5-sauvegarde-en-ligne';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',
@@ -26,6 +26,7 @@ const ASSETS = [
   './js/core/angles.js',
   './js/core/boats.js',
   './js/core/challenge.js',
+  './js/core/cloud.js',
   './js/core/conditions.js',
   './js/core/course.js',
   './js/core/heel.js',
@@ -34,6 +35,7 @@ const ASSETS = [
   './js/core/live.js',
   './js/core/look.js',
   './js/core/maneuver.js',
+  './js/core/merge.js',
   './js/core/polar.js',
   './js/core/progress.js',
   './js/core/rules.js',
@@ -103,6 +105,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.includes('/api/')) return; // sauvegarde en ligne : toujours le réseau
 
   // Navigation vers l'application (routes après le #) : page servie depuis le cache.
   // Les autres pages (outils de test…) passent par le réseau.

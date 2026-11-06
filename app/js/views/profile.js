@@ -7,6 +7,7 @@ import { saveBackup, pickBackup, openProfile, dateFr } from '../ui/backup.js';
 import { xpBreakdown, gradeOf, GRADES, BADGES, earnedBadges, examChecks } from '../core/progress.js';
 import { perksOf } from '../core/look.js';
 import { boatIcon } from '../ui/boat.js';
+import { schedule, cloudStatus, resetCloud } from '../core/cloud.js';
 import { lookPickerHTML, bindLookPicker } from '../ui/lookpicker.js';
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -26,9 +27,15 @@ export function render(root, params = []) {
         <div class="pc-top">
           <span class="pc-icon">${g.icon}</span>
           <div class="grow">
-            <label class="name-field">Prénom
-              <input id="pname" maxlength="24" value="${esc(store.name)}" placeholder="Ton prénom" />
-            </label>
+            <div class="id-fields">
+              <label class="name-field">Prénom
+                <input id="pname" maxlength="24" autocomplete="given-name" value="${esc(store.name)}" placeholder="Ton prénom" />
+              </label>
+              <label class="name-field">Date de naissance
+                <input id="pbirth" type="date" min="1920-01-01" max="${new Date().toISOString().slice(0, 10)}" value="${esc(store.birth)}" />
+              </label>
+            </div>
+            <p class="cloud-line" id="cloudLine" role="status"></p>
             <h2 style="margin:8px 0 0">${g.name}</h2>
             <span class="xpbar big"><i style="width:${Math.round(g.pct * 100)}%"></i></span>
             <small class="muted">${xp.total} XP${!g.next ? ' · grade maximal atteint !' : g.blocked ? ` · XP atteints pour <b>${g.next.icon} ${g.next.name}</b> : il reste l’épreuve` : ` · prochain grade : <b>${g.next.icon} ${g.next.name}</b> à ${g.next.xp} XP`}</small>
@@ -118,8 +125,29 @@ export function render(root, params = []) {
   bindLookPicker(look, g.index);
   if (params[0] === 'bateau') requestAnimationFrame(() => look.scrollIntoView({ behavior: 'smooth', block: 'start' }));
 
+  const cloudLine = () => {
+    const el = root.querySelector('#cloudLine');
+    if (!el) return;
+    const st = cloudStatus();
+    const hm = (t) => new Date(t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    el.className = `cloud-line cloud-${!store.name || !store.birth ? 'off' : st.state}`;
+    el.innerHTML = !store.name || !store.birth
+      ? '☁️ Renseigne ton prénom et ta date de naissance : ta progression sera sauvegardée en ligne et tu la retrouveras sur tous tes appareils.'
+      : st.state === 'sync' ? '☁️ Sauvegarde en ligne…'
+      : st.state === 'error' ? `☁️ Pas de connexion au serveur (${esc(st.error)}) : la sauvegarde partira dès que possible.`
+      : `☁️ Sauvegardé en ligne${st.at || store.cloud?.at ? ` à ${hm(st.at || store.cloud.at)}` : ''}. Sur un autre appareil, mets le même prénom et la même date de naissance.`;
+  };
+  cloudLine();
+  window.addEventListener('cloudstatus', cloudLine);
+  root.querySelector('#pbirth').addEventListener('change', (e) => {
+    store.setBirth(e.target.value);
+    schedule(200);
+    cloudLine();
+  });
   root.querySelector('#pname').addEventListener('change', (e) => {
     store.setName(e.target.value);
+    schedule(200);
+    cloudLine();
     window.dispatchEvent(new CustomEvent('progress'));
   });
   const msg = (t, bad = false) => {
@@ -172,7 +200,9 @@ export function render(root, params = []) {
   root.querySelector('#reset').addEventListener('click', () => {
     if (!window.confirm('Effacer toutes tes étoiles, leçons, records et badges ? (Ton prénom et ton bateau sont conservés.)')) return;
     store.reset();
+    resetCloud();
     window.dispatchEvent(new CustomEvent('progress'));
     render(root);
   });
+  return () => window.removeEventListener('cloudstatus', cloudLine);
 }

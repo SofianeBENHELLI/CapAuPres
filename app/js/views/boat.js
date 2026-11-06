@@ -5,6 +5,8 @@ import { getTrim } from '../data/trim.js';
 import { boatSVG, windArrowSVG } from '../ui/boat.js';
 import { store } from '../store.js';
 import { pickBackup, openProfile } from '../ui/backup.js';
+import { peek } from '../core/cloud.js';
+import { mergeProfiles } from '../core/merge.js';
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
@@ -22,6 +24,15 @@ export function render(root, params) {
         <label class="name-field">Ton prénom (facultatif)
           <input id="pname" maxlength="24" autocomplete="given-name" placeholder="Ex. Léa" value="${esc(store.name)}" />
         </label>
+        <div class="cloud-restore">
+          <b>☁️ Tu as déjà joué sur un autre appareil ?</b>
+          <span class="muted">Mets ton prénom ci-dessus et ta date de naissance : ta progression revient.</span>
+          <div class="row">
+            <input id="rbirth" type="date" min="1920-01-01" max="${new Date().toISOString().slice(0, 10)}" aria-label="Date de naissance" />
+            <button class="btn small primary" id="cloudRestore">Retrouver ma progression</button>
+          </div>
+          <small class="save-msg" id="cloudMsg" role="status"></small>
+        </div>
         <div class="comeback">
           <b>Déjà venu·e ?</b>
           ${others.map((p) => `<button class="btn small" data-open="${p.id}">⛵ Reprendre ${esc(p.name || 'le profil sans prénom')}</button>`).join('')}
@@ -65,6 +76,30 @@ export function render(root, params) {
     </div>`;
 
   root.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => openProfile(() => store.switchProfile(b.dataset.open))));
+  root.querySelector('#cloudRestore')?.addEventListener('click', async (e) => {
+    const name = root.querySelector('#pname').value.trim();
+    const birth = root.querySelector('#rbirth').value;
+    const m = root.querySelector('#cloudMsg');
+    const say = (t, bad) => { m.textContent = t; m.classList.toggle('bad', !!bad); };
+    if (!name || !birth) return say('Il faut ton prénom et ta date de naissance.', true);
+    e.target.disabled = true;
+    say('Recherche…');
+    try {
+      const remote = await peek(name, birth);
+      if (!remote) {
+        e.target.disabled = false;
+        return say('Aucune progression trouvée avec ce prénom et cette date de naissance.', true);
+      }
+      openProfile(() => {
+        store.setName(name);
+        store.setBirth(birth);
+        store.adopt(mergeProfiles(store.snapshot(), remote));
+      });
+    } catch {
+      e.target.disabled = false;
+      say('Impossible de joindre le serveur : vérifie ta connexion.', true);
+    }
+  });
   root.querySelector('#restore')?.addEventListener('click', async () => {
     try {
       const p = await pickBackup();

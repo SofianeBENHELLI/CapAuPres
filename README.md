@@ -29,3 +29,14 @@ Après une modification, changer `VERSION` dans `app/sw.js` pour que les apparei
 ## Déploiement
 
 Projet Cloudflare Pages `capaupres` relié au dépôt (dossier publié `app/`, sans build) : `main` en production sur https://capaupres.pages.dev, les autres branches en préversion.
+
+## Sauvegarde en ligne
+
+Dans le Profil, prénom + date de naissance : la progression est sauvegardée en ligne et se retrouve sur tous les appareils (sur un nouvel appareil, écran d'accueil, « Retrouver ma progression »).
+
+- `functions/api/profil/[key].js` (Cloudflare Pages Functions) : `GET` et `PUT /api/profil/:key`, stockage Cloudflare KV (liaison `PROFILS`).
+- `key` = SHA-256 du prénom normalisé et de la date de naissance, calculé dans le navigateur. Le serveur la re-hache avec le secret `PEPPER` avant de s'en servir comme clé KV. Ni le prénom ni la date ne sont envoyés.
+- À chaque envoi, le serveur fusionne (`app/js/core/merge.js`) : meilleur score par mission et par leçon, records max, badges cumulés. Deux appareils ne s'écrasent jamais. La remise à zéro remplace la version en ligne.
+- Limite connue : quelqu'un qui connaît le prénom et la date de naissance d'un élève peut lire ou compléter sa progression (jamais l'effacer, sauf via la remise à zéro).
+
+Test local : `npx wrangler pages dev app --kv PROFILS --binding PEPPER=dev`.

@@ -23,6 +23,7 @@ import { resolveLook } from './core/look.js';
 import { syncSeenXp } from './ui/fx.js';
 import { store } from './store.js';
 import './pwa.js';
+import { startCloud } from './core/cloud.js';
 
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 const view = document.getElementById('view');
@@ -50,6 +51,7 @@ syncSeenXp();
 window.addEventListener('boatchange', refreshChips);
 window.addEventListener('progress', refreshChips);
 refreshChips();
+startCloud();
 
 const ROUTES = {
   home, bateau: boat, apprendre: learn, naviguer: play, mission: game, defi: game, reflexes, profil: profile, barre: live, regate: live, conditions,

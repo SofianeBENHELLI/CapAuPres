@@ -30,8 +30,10 @@ if (data.levels && Object.keys(data.levels).some((k) => !k.includes('/'))) {
 
 const lk = (id, boat = boatId()) => `${boat}/${id}`;
 
+let onSave = null;
 function save() {
   data.updated = Date.now();
+  if (onSave) queueMicrotask(onSave);
   try {
     localStorage.setItem(KEY, JSON.stringify(data));
   } catch {
@@ -178,6 +180,41 @@ export const store = {
   get name() {
     return data.name || '';
   },
+  get birth() {
+    return data.birth || '';
+  },
+  setBirth(d) {
+    data.birth = /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : '';
+    save();
+  },
+  // ---- sauvegarde en ligne (voir core/cloud.js)
+  get cloud() {
+    return data.cloud || null;
+  },
+  setCloud(c) {
+    data.cloud = c;
+    try {
+      localStorage.setItem(KEY, JSON.stringify(data)); // sans toucher à `updated` ni relancer un envoi
+    } catch {
+      /* stockage indisponible */
+    }
+  },
+  snapshot() {
+    return JSON.parse(JSON.stringify(data));
+  },
+  // Remplace la progression par une version fusionnée, en gardant ce qui est propre à l'appareil.
+  adopt(profile) {
+    const keep = { pid: data.pid, name: data.name, birth: data.birth, cloud: data.cloud, lastBackup: data.lastBackup, seenXp: data.seenXp };
+    data = { ...profile, ...keep, updated: Math.max(+profile.updated || 0, +data.updated || 0) };
+    try {
+      localStorage.setItem(KEY, JSON.stringify(data));
+    } catch {
+      /* stockage indisponible */
+    }
+  },
+  onSave(fn) {
+    onSave = fn;
+  },
   setName(n) {
     data.name = String(n || '').trim().slice(0, 24);
     save();
@@ -193,8 +230,8 @@ export const store = {
     return levels.reduce((s, l) => s + starsFor(this.level(l.id, boat)?.score || 0), 0);
   },
   reset() {
-    const { boat, name, pid } = data;
-    data = { boat, name, pid };
+    const { boat, name, pid, birth, cloud } = data;
+    data = { boat, name, pid, birth, cloud };
     save();
   },
   // ---- profils de l'appareil

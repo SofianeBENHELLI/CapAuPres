@@ -1274,3 +1274,14 @@ body.no-foot .site-foot { display: none; }
 }
 .hc-live { font-size: 0.95rem; font-weight: 800; color: var(--port); letter-spacing: 0; }
 .hour-card.active .hc-live { color: #ff9b9b; }
+
+/* Sauvegarde en ligne */
+.id-fields { display: flex; flex-wrap: wrap; gap: 10px; }
+.id-fields .name-field { flex: 1 1 160px; }
+.cloud-line { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+.cloud-line.cloud-ok { color: var(--ok); }
+.cloud-line.cloud-error { color: var(--orange); }
+.cloud-restore { display: grid; gap: 6px; margin: 14px 0 6px; padding: 12px 14px; border-radius: 14px; background: var(--sky-soft); max-width: 460px; }
+.cloud-restore input { font: inherit; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.cloud-restore .row { gap: 8px; flex-wrap: wrap; }
+@media (max-width: 640px) { .cloud-restore { margin: 14px auto 6px; text-align: left; } }
