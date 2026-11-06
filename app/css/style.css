@@ -1287,3 +1287,26 @@ body.no-foot .site-foot { display: none; }
 body.wm-max-open { overflow: hidden; }
 body.wm-max-open .tabbar, body.wm-max-open .topbar { visibility: hidden; }
 @media (max-width: 640px) { .wm-max-btn { font-size: 0.8rem; padding: 6px 10px; } }
+
+/* École : mémo du marin */
+.memo-grid, .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.memo-card, .game-card { display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: inherit; transition: transform 0.15s, box-shadow 0.15s; }
+.memo-card:hover, .game-card:hover { transform: translateY(-3px); }
+.memo-card span.muted, .game-card span.muted { font-size: 13px; }
+.game-card .pill { align-self: flex-start; margin-top: 6px; font-size: 12px; }
+.game-card .pill.ghost { opacity: 0.7; }
+.next-step { display: flex; align-items: center; gap: 14px; margin-top: 22px; text-decoration: none; color: inherit; background: var(--sky-soft); }
+.next-step > div { flex: 1; display: grid; gap: 2px; }
+.next-step span.muted { font-size: 13px; }
+.learn-layout { grid-template-columns: minmax(0, 1fr); }
+
+/* Jeux */
+.games-hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 8px; }
+.game-feature { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; text-decoration: none; color: inherit; }
+.game-feature > div:not(.row) { flex: 1 1 180px; display: grid; gap: 2px; }
+.game-feature small { text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; font-size: 11px; color: var(--sky-2); }
+.game-feature b { font-size: 1.05rem; }
+.game-feature .temoji { font-size: 34px; }
+.game-feature.daily { background: linear-gradient(135deg, var(--navy), var(--navy-2)); color: #fff; }
+.game-feature.daily small { color: var(--sky); }
+.game-feature.daily span:not(.btn):not(.temoji) { color: #c9d6ee; }

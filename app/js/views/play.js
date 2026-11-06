@@ -58,18 +58,7 @@ export function render(root) {
       <aside class="card mission-panel" id="panel"></aside>
     </div>
 
-    <h2 class="block-title">Entraînement</h2>
-    <div class="train-grid">
-      <a class="card train-card" href="#/reflexes"><span class="temoji">⚡</span><b>Réflexes</b><span class="muted">5 mini-jeux de 45 s : amure, allure, manœuvre, à la barre…</span></a>
-      <a class="card train-card" href="#/defi/2/today"><span class="temoji">📅</span><b>Défi du jour</b><span class="muted">${store.daily(dailySeed()) ? `✓ Réussi : ${store.daily(dailySeed())} %` : 'Le même parcours pour toute l’équipe, avec le vent prévu cet après-midi.'}</span></a>
-      <div class="card train-card"><span class="temoji">🎲</span><b>Défi aléatoire</b><span class="muted">Un parcours tiré au hasard dans la baie.</span>
-        <div class="row" style="margin-top:6px">
-          <a class="btn small" href="#/defi/1/${Math.floor(Math.random() * 1e6)}">🟢 Facile</a>
-          <a class="btn small" href="#/defi/2/${Math.floor(Math.random() * 1e6)}">🟠 Moyen</a>
-          <a class="btn small" href="#/defi/3/${Math.floor(Math.random() * 1e6)}">🔴 Difficile</a>
-        </div>
-      </div>
-    </div>`;
+    <a class="card next-step" href="#/jeux"><span class="temoji">🎮</span><div><b>Défi du jour, défis aléatoires, réflexes</b><span class="muted">Tous les jeux sont maintenant dans l’onglet Jeux.</span></div><span class="btn small">Jeux →</span></a>`;
 
   bindMarkPopovers(root.querySelector('.bay-map-wrap'));
   const panel = root.querySelector('#panel');

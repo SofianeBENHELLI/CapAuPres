@@ -50,29 +50,16 @@ function renderPath(root) {
           </li>`;
         }).join('')}
       </ol>
-      <aside class="learn-side">
-        <a class="card side-link" href="#/lexique">
-          <b>📖 Lexique</b>
-          <span class="muted">Tous les mots du marin : bôme, choquer, taquet coinceur…</span>
-        </a>
-        <a class="card side-link" href="#/apprendre/matelotage/noeuds">
-          <b>🪢 Les nœuds</b>
-          <span class="muted">Huit, chaise, taquet : pas à pas, en animation.</span>
-        </a>
-        <a class="card side-link" href="#/apprendre/reglages">
-          <b>🎯 Atelier réglages</b>
-          <span class="muted">Une situation au hasard : règle ton ${getBoat().name} et compare avec les moniteurs.</span>
-        </a>
-        <a class="card side-link" href="#/reflexes">
-          <b>⚡ Réflexes</b>
-          <span class="muted">Mini-jeux de 45 secondes pour ancrer les bases : amures, allures, manœuvres.</span>
-        </a>
-        <a class="card side-link" href="#/naviguer">
-          <b>⛵ Mettre en pratique</b>
-          <span class="muted">Les missions dans la baie de La Baule, au départ du club.</span>
-        </a>
-      </aside>
-    </div>`;
+    </div>
+    <h2 class="block-title">📚 Mémo du marin</h2>
+    <p class="muted" style="margin-top:-6px">Les fiches à consulter quand tu veux, sur le quai comme sur l’eau.</p>
+    <div class="memo-grid">
+      <a class="card memo-card" href="#/apprendre/matelotage/lexique"><span class="temoji">📖</span><b>Lexique</b><span class="muted">Tous les mots du marin : bôme, choquer, taquet coinceur…</span></a>
+      <a class="card memo-card" href="#/apprendre/matelotage/noeuds"><span class="temoji">🪢</span><b>Les nœuds</b><span class="muted">Huit, chaise, taquet : pas à pas, en animation.</span></a>
+      <a class="card memo-card" href="#/apprendre/matelotage/bateau"><span class="temoji">⛵</span><b>Le bateau</b><span class="muted">Le nom de chaque pièce de ton ${getBoat().name}.</span></a>
+      <a class="card memo-card" href="#/apprendre/reglages"><span class="temoji">🎛️</span><b>Fiches réglages</b><span class="muted">Quoi régler selon l’allure et la force du vent.</span></a>
+    </div>
+    <a class="card next-step" href="#/jeux"><span class="temoji">🎮</span><div><b>Envie de t’entraîner en t’amusant ?</b><span class="muted">Réflexes, atelier réglages, défis : c’est dans l’onglet Jeux.</span></div><span class="btn primary small">Jouer →</span></a>`;
 }
 
 // ---------------------------------------------------------------- Révisions espacées
@@ -101,7 +88,7 @@ function renderLesson(root, lesson, tab) {
     </div>
     <div class="section-title"><h1>${lesson.icon} ${lesson.title}</h1><span class="pill">Leçon ${lesson.num} / ${LESSONS.length}</span></div>
     <p class="muted" style="margin-top:-6px">${lesson.summary}</p>
-    ${lesson.id === 'reglages' ? '<nav class="tabs" id="subtabs"><button class="active" data-v="reglages">🎛️ Les réglages</button><button data-v="atelier">🎯 Atelier : à toi de régler</button></nav>' : ''}
+    ${lesson.id === 'reglages' ? `<nav class="tabs" id="subtabs"><button class="${tab === 'atelier' ? '' : 'active'}" data-v="reglages">🎛️ Les réglages</button><button class="${tab === 'atelier' ? 'active' : ''}" data-v="atelier">🎯 Atelier : à toi de régler</button></nav>` : ''}
     ${lesson.id === 'matelotage' ? `<nav class="tabs" id="subtabs">${MATELOT_TABS.map((t) => `<button class="${t.id === (tab || 'bateau') ? 'active' : ''}" data-v="${t.id}">${t.label}</button>`).join('')}</nav>` : ''}
     <div id="lesson-body"></div>
     <div class="card lesson-cta">
@@ -123,7 +110,7 @@ function renderLesson(root, lesson, tab) {
     if (lesson.id === 'matelotage') cleanup = matelotage(body, id) || null;
     else cleanup = id === 'baie' ? baieLesson(body) : LESSON_VIEWS[id](body) || null;
   };
-  show(lesson.id === 'matelotage' ? tab || 'bateau' : lesson.id);
+  show(lesson.id === 'matelotage' ? tab || 'bateau' : lesson.id === 'reglages' && tab === 'atelier' ? 'atelier' : lesson.id);
   root.querySelector('#subtabs')?.addEventListener('click', (e) => {
     const b = e.target.closest('button');
     if (!b) return;

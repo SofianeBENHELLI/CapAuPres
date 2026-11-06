@@ -15,7 +15,7 @@ const MIX_QUESTIONS = 15;
 const SPEED_WINDOW = 20; // s
 const SPEED_MAX = 15; // pts
 
-const MODES = [
+export const MODES = [
   { id: 'amure', emoji: '↔️', title: 'Bâbord ou tribord ?', text: 'Le vent et le bateau changent à chaque fois : de quel côté vient le vent ?' },
   { id: 'allure', emoji: '🧭', title: 'Quelle allure ?', text: 'Près, travers, largue, vent arrière… Reconnais l’allure du premier coup d’œil.' },
   { id: 'manoeuvre', emoji: '🔄', title: 'Quelle manœuvre ?', text: 'Virement, empannage, lofer (pousser la barre) ou abattre (tirer la barre) : nomme le virage dessiné.' },
@@ -48,7 +48,7 @@ export function render(root, params) {
 
 function renderMenu(root) {
   root.innerHTML = `
-    <div class="section-title"><h1>Réflexes</h1><a class="btn small ghost" href="#/naviguer">← Naviguer</a></div>
+    <div class="section-title"><h1>Réflexes</h1><a class="btn small ghost" href="#/jeux">← Jeux</a></div>
     <p class="muted" style="margin-top:-6px">Sur l’eau, il faut savoir en une seconde d’où vient le vent et comment on navigue. Enchaîne les bonnes réponses pour faire monter le combo !</p>
     <div class="reflex-modes">
       ${MODES.map((m) => `

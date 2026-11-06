@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b7-carte-baie';
+const VERSION = 'b8-ecole-jeux';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',
@@ -63,6 +63,7 @@ const ASSETS = [
   './js/views/boat.js',
   './js/views/conditions.js',
   './js/views/game.js',
+  './js/views/games.js',
   './js/views/heel.js',
   './js/views/home.js',
   './js/views/learn.js',
