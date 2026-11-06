@@ -124,10 +124,10 @@ export function render(root) {
       <b>${badges.size} / ${BADGES.length}</b>
       <span class="badge-mini">${BADGES.filter((b) => badges.has(b.id)).slice(-6).map((b) => `<span title="${b.name}">${b.icon}</span>`).join('') || '<small class="muted">Aucun pour l’instant</small>'}</span>
     </a>
-    <a class="card stat-card" href="#/seance">
-      <small class="muted">Au club</small>
-      <b>👩‍🏫 Séance</b>
-      <small class="muted">${store.mySession ? `En cours : ${store.mySession.name.replace(/[<>&]/g, '')}` : 'Rejoins la séance de ton moniteur'}</small>
+    <a class="card stat-card" href="#/conditions">
+      <small class="muted">Dans la baie</small>
+      <b>🌤️ Météo</b>
+      <small class="muted">Vent, vagues et marée heure par heure</small>
     </a>
     <a class="card stat-card" href="#/reflexes">
       <small class="muted">Réflexes</small>

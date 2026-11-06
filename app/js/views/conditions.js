@@ -68,25 +68,51 @@ function atOffset(o, now) {
   return new Date(t.getTime() + o * 3600e3);
 }
 
-// Raccourcis : dans quelques heures, demain et après-demain matin / après-midi.
-function shortcuts(now) {
-  const h0 = new Date(now);
-  h0.setMinutes(0, 0, 0);
-  const at = (dayPlus, hour) => {
-    const t = new Date(now);
-    t.setHours(0, 0, 0, 0);
-    t.setDate(t.getDate() + dayPlus);
-    t.setHours(hour);
-    return Math.round((t - h0) / 3600e3);
-  };
-  return [
-    { o: 0, label: 'Maintenant' },
-    { o: 3, label: '+3 h' },
-    { o: at(1, 10), label: 'Demain 10h' },
-    { o: at(1, 15), label: 'Demain 15h' },
-    { o: at(2, 10), label: 'Après-demain 10h' },
-    { o: at(2, 15), label: 'Après-demain 15h' },
-  ].filter((c) => c.o >= 0 && c.o <= HORIZON_H);
+// Jours couverts par la prévision (aujourd'hui, demain, après-demain) avec leurs heures.
+const DAY_FMT = (d) => d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }).replace('.', '');
+function dayGroups(strip, now) {
+  const d0 = new Date(now);
+  d0.setHours(0, 0, 0, 0);
+  const groups = [];
+  for (const h of strip) {
+    const k = Math.floor((h.at - d0) / 86400e3);
+    let g = groups.find((x) => x.k === k);
+    if (!g) {
+      const date = new Date(d0.getTime() + k * 86400e3);
+      g = { k, date, name: k === 0 ? 'Aujourd’hui' : k === 1 ? 'Demain' : (([w]) => w.charAt(0).toUpperCase() + w.slice(1))([date.toLocaleDateString('fr-FR', { weekday: 'long' })]), hours: [] };
+      groups.push(g);
+    }
+    g.hours.push(h);
+  }
+  // meilleur créneau de jour de chaque journée : le drapeau le plus doux, vent le plus proche de 10 nds
+  const rank = { green: 0, yellow: 1, red: 2, black: 3 };
+  for (const g of groups) {
+    const day = g.hours.filter((h) => !h.night && h.flag && h.flag.color !== 'night');
+    g.best = day.length ? day.reduce((a, h) => (rank[h.flag.color] - rank[a.flag.color] || Math.abs(h.kn - 10) - Math.abs(a.kn - 10)) < 0 ? h : a) : null;
+    g.worst = day.reduce((m, h) => Math.max(m, rank[h.flag.color]), 0);
+  }
+  return groups;
+}
+
+function dayTabs(groups, selK) {
+  const color = ['green', 'yellow', 'red', 'black'];
+  return groups.map((g) => `<button class="day-tab${g.k === selK ? ' active' : ''}" data-k="${g.k}" role="tab" aria-selected="${g.k === selK}">
+    <b>${g.name}</b><small>${DAY_FMT(g.date)}</small>
+    <span class="day-dots" aria-hidden="true">${g.hours.filter((h) => !h.night).map((h) => `<i class="dot-${h.flag?.color || 'none'}"></i>`).join('')}</span>
+    ${g.best ? `<small class="day-best">Meilleur : ${g.best.at.getHours()}h</small>` : `<small class="day-best muted">Nuit</small>`}
+  </button>`).join('');
+}
+
+function hourCards(g, selO) {
+  return g.hours.map((h) => `<button class="hour-card hc-${h.flag?.color || 'none'}${h.night ? ' hc-night' : ''}${h.o === selO ? ' active' : ''}${g.best && h.o === g.best.o ? ' hc-best' : ''}" data-o="${h.o}" role="option" aria-selected="${h.o === selO}" aria-label="${h.o ? `${h.at.getHours()} heures` : 'Maintenant'} : vent ${h.kn} nœuds, rafales ${h.gust}${h.waves != null ? `, vagues ${num(h.waves)} mètre` : ''}, ${h.flag ? h.flag.label.toLowerCase() : ''}">
+    <span class="hc-time">${h.o ? `${h.at.getHours()}<small>h</small>` : '<span class="hc-live">Direct</span>'}</span>
+    <span class="hc-sky" aria-hidden="true">${h.night ? '🌙' : h.sky?.icon || ''}</span>
+    <span class="hc-wind">${arrow(h.from, 18)}<b>${h.kn}</b></span>
+    <small class="hc-gust">raf. ${h.gust}</small>
+    ${h.waves != null ? `<small class="hc-wave">🌊 ${num(h.waves)} m</small>` : ''}
+    <span class="hc-flag" aria-hidden="true"></span>
+    ${g.best && h.o === g.best.o ? '<span class="hc-star" aria-hidden="true">★</span>' : ''}
+  </button>`).join('');
 }
 
 function flagCard(flag, boat, s) {
@@ -215,16 +241,18 @@ export function render(root) {
     const strip = Array.from({ length: HORIZON_H + 1 }, (_, o) => {
       const at = atOffset(o, now);
       const sum = summarize(data, at, now);
-      return { o, at, night: sum.night, flag: flagFor(sum, boat.id) };
+      return { o, at, night: sum.night, flag: flagFor(sum, boat.id), kn: sum.wind?.kn ?? 0, gust: sum.wind?.gust ?? 0, from: sum.wind?.from ?? 0, sky: sum.sky, waves: sum.waves?.height };
     });
+    const groups = dayGroups(strip, now);
+    const dayOf = (o) => groups.find((g) => g.hours.some((h) => h.o === o)) || groups[0];
     box.innerHTML = `
       <div class="cond-layout">
       <div class="cond-main">
       <div class="card time-card">
-        <div class="chips" id="cchips">${shortcuts(now).map((c) => `<button class="chip" data-o="${c.o}">${c.label}</button>`).join('')}</div>
-        <div class="time-strip" aria-hidden="true">${strip.map((h) => `<span class="ts-cell flag-cell-${h.flag?.color || 'none'}${h.at.getHours() === 0 && h.o ? ' ts-midnight' : ''}" title="${whenLabel(h.at, now)}"></span>`).join('')}</div>
-        <input type="range" id="cslider" min="0" max="${HORIZON_H}" step="1" value="${offset}" aria-label="Choisir l’heure, sur les 48 prochaines heures"/>
-        <div class="time-axis" aria-hidden="true"><span>Maintenant</span><span>+24 h</span><span>+48 h</span></div>
+        <div class="tc-head"><h2 class="h3">🗓️ Choisis ton créneau</h2><button class="btn small" id="cnowbtn">Maintenant</button></div>
+        <div class="day-tabs" id="cdays" role="tablist" aria-label="Jour"></div>
+        <div class="hour-scroll" id="chours" role="listbox" aria-label="Heure" tabindex="0"></div>
+        <div class="hc-legend" aria-hidden="true"><span><i class="dot-green"></i>vert</span><span><i class="dot-yellow"></i>jaune</span><span><i class="dot-red"></i>rouge</span><span><i class="dot-black"></i>noir</span><span>★ meilleur créneau</span></div>
         <div class="time-now" id="cnow" aria-hidden="true"></div>
       </div>
       <div id="cflag" aria-live="polite"></div>
@@ -252,15 +280,37 @@ export function render(root) {
       box.querySelector('#cnow').innerHTML = nowLine(s, flag, now);
       box.querySelector('#ccontent').innerHTML = content(s);
       updateWindMap(wmap, s, s.live ? 'Maintenant' : whenLabel(s.at, now));
-      box.querySelector('#cslider').value = o;
-      box.querySelector('#cslider').setAttribute('aria-valuetext', s.live ? 'Maintenant' : whenLabel(s.at, now));
-      box.querySelectorAll('#cchips .chip').forEach((c) => c.classList.toggle('active', +c.dataset.o === o));
+      const g = dayOf(o);
+      box.querySelector('#cdays').innerHTML = dayTabs(groups, g.k);
+      const hours = box.querySelector('#chours');
+      const keep = hours.dataset.k === String(g.k) ? hours.scrollLeft : null;
+      hours.innerHTML = hourCards(g, o);
+      hours.dataset.k = g.k;
+      const card = hours.querySelector('.hour-card.active');
+      if (keep != null) hours.scrollLeft = keep;
+      if (card) {
+        const l = card.offsetLeft - hours.offsetLeft;
+        if (l < hours.scrollLeft || l + card.offsetWidth > hours.scrollLeft + hours.clientWidth) hours.scrollLeft = l - hours.clientWidth / 2 + card.offsetWidth / 2;
+      }
     };
-    box.querySelector('#cslider').oninput = (e) => show(+e.target.value);
-    box.querySelector('#cchips').onclick = (e) => {
-      const c = e.target.closest('.chip');
+    box.querySelector('#cdays').onclick = (e) => {
+      const t = e.target.closest('.day-tab');
+      if (!t) return;
+      const g = groups.find((x) => x.k === +t.dataset.k);
+      show((g.best || g.hours.find((h) => !h.night) || g.hours[0]).o);
+    };
+    box.querySelector('#chours').onclick = (e) => {
+      const c = e.target.closest('.hour-card');
       if (c) show(+c.dataset.o);
     };
+    box.querySelector('#chours').onkeydown = (e) => {
+      const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+      if (!d) return;
+      e.preventDefault();
+      show(Math.max(0, Math.min(HORIZON_H, offset + d)));
+      box.querySelector('#chours .hour-card.active')?.focus();
+    };
+    box.querySelector('#cnowbtn').onclick = () => show(0);
     box.querySelector('#crefresh').onclick = (e) => {
       e.target.disabled = true;
       load(true);

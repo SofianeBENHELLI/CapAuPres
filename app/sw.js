@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b3-ecole-grades';
+const VERSION = 'b4-meteo-creneaux';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',
@@ -13,8 +13,6 @@ const ASSETS = [
   './assets/fonts/poppins-700.woff2',
   './assets/fonts/poppins-800.woff2',
   './assets/fonts/poppins.css',
-  './assets/vendor/jsQR.js',
-  './assets/vendor/qrcode.js',
   './css/style.css',
   './favicon.ico',
   './icons/apple-touch-icon.png',
@@ -39,7 +37,6 @@ const ASSETS = [
   './js/core/polar.js',
   './js/core/progress.js',
   './js/core/rules.js',
-  './js/core/session.js',
   './js/core/sim.js',
   './js/core/solver.js',
   './js/core/srs.js',
@@ -72,7 +69,6 @@ const ASSETS = [
   './js/views/play.js',
   './js/views/profile.js',
   './js/views/reflexes.js',
-  './js/views/session.js',
   './js/views/theory.js',
   './manifest.webmanifest',
 ];

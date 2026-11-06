@@ -87,11 +87,6 @@ export function render(root, params = []) {
         <a class="btn small" href="#/reflexes">⚡ S’entraîner</a>
       </section>
 
-      <section class="card">
-        <h3>👩‍🏫 Moniteur</h3>
-        <p class="muted" style="margin-top:0">Prépare une séance pour ton groupe : les élèves la rejoignent par QR code, révisent, naviguent, et tu récupères leurs résultats en les scannant. Sans compte ni serveur.</p>
-        <a class="btn navy small" href="#/seance">Ouvrir le mode séance</a>
-      </section>
 
       <section class="card save-card">
         <h3>💾 Sauvegarde et profils</h3>

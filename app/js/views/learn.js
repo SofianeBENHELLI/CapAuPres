@@ -12,7 +12,6 @@ import { XP } from '../core/progress.js';
 import { confetti, celebrate } from '../ui/fx.js';
 import { PLACES, START } from '../core/levels.js';
 import { review, dueItems, questionOf, qid } from '../core/srs.js';
-import { recordForSession } from './session.js';
 import { BAY } from '../data/bay.js';
 
 const PASS = 80; // % de bonnes réponses pour valider
@@ -67,10 +66,6 @@ function renderPath(root) {
         <a class="card side-link" href="#/reflexes">
           <b>⚡ Réflexes</b>
           <span class="muted">Mini-jeux de 45 secondes pour ancrer les bases : amures, allures, manœuvres.</span>
-        </a>
-        <a class="card side-link" href="#/seance">
-          <b>👩‍🏫 Séance au club</b>
-          <span class="muted">Ton moniteur a préparé une séance ? Rejoins-la avec son QR code.</span>
         </a>
         <a class="card side-link" href="#/naviguer">
           <b>⛵ Mettre en pratique</b>
@@ -403,7 +398,6 @@ function renderQuiz(root, lesson, custom = null) {
     }
     const passed = pct >= PASS;
     const wasDone = store.lesson(lesson.id)?.done;
-    recordForSession({ lesson: lesson.id, pct, wrong: wrongIds });
     if (passed) store.saveLesson(lesson.id, pct);
     const idx = LESSONS.indexOf(lesson);
     const next = LESSONS[idx + 1];

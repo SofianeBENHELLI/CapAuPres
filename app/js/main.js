@@ -6,7 +6,6 @@
 //   #/mission/:id          une mission (tracé)  #/barre/:id  à la barre  #/regate/:id  régate en flotte
 //   #/defi/:diff/:graine   un défi aléatoire
 //   #/reflexes[/mode]      mini-jeux       #/profil               profil, grade, badges
-//   #/seance[/…]           séance moniteur / élèves par QR code
 //   #/conditions           météo, vent, marée, vagues et webcam en temps réel
 import * as home from './views/home.js';
 import * as learn from './views/learn.js';
@@ -16,7 +15,6 @@ import * as game from './views/game.js';
 import * as boat from './views/boat.js';
 import * as profile from './views/profile.js';
 import * as live from './views/live.js';
-import * as session from './views/session.js';
 import * as conditions from './views/conditions.js';
 import { setBoat, getBoat } from './core/boats.js';
 import { xpBreakdown, gradeOf } from './core/progress.js';
@@ -54,16 +52,16 @@ window.addEventListener('progress', refreshChips);
 refreshChips();
 
 const ROUTES = {
-  home, bateau: boat, apprendre: learn, naviguer: play, mission: game, defi: game, reflexes, profil: profile, barre: live, regate: live, seance: session, conditions,
+  home, bateau: boat, apprendre: learn, naviguer: play, mission: game, defi: game, reflexes, profil: profile, barre: live, regate: live, conditions,
 };
-const NAV_OF = { mission: 'naviguer', defi: 'naviguer', reflexes: 'naviguer', barre: 'naviguer', regate: 'naviguer', bateau: 'profil', seance: 'profil', conditions: 'conditions' };
+const NAV_OF = { mission: 'naviguer', defi: 'naviguer', reflexes: 'naviguer', barre: 'naviguer', regate: 'naviguer', bateau: 'profil', conditions: 'conditions' };
 // Anciennes adresses (versions précédentes, raccourcis installés).
-const LEGACY = { theorie: 'apprendre', parcours: 'naviguer', lexique: 'apprendre/matelotage/lexique', noeuds: 'apprendre/matelotage/noeuds' };
+const LEGACY = { seance: '', theorie: 'apprendre', parcours: 'naviguer', lexique: 'apprendre/matelotage/lexique', noeuds: 'apprendre/matelotage/noeuds' };
 
 function route() {
   const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   const [section = 'home', ...params] = parts;
-  if (LEGACY[section]) {
+  if (section in LEGACY) {
     location.replace(`#/${LEGACY[section]}`);
     return;
   }

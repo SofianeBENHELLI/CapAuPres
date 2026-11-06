@@ -1214,3 +1214,63 @@ body.no-foot .site-foot { display: none; }
 .ladder .lad-ok { color: var(--sky); font-weight: 800; }
 .badge { position: relative; }
 .badge .block { position: absolute; top: 8px; right: 10px; font-size: 13px; opacity: 0.7; }
+
+/* Sélecteur de créneau : onglets des jours + cartes horaires */
+.tc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tc-head h2 { margin: 0; }
+.day-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+.day-tab { font: inherit; color: var(--ink); background: var(--card-2); border: 2px solid transparent; border-radius: 14px; padding: 8px 10px; cursor: pointer;
+  display: grid; justify-items: start; gap: 1px; text-align: left; transition: background 0.15s, border-color 0.15s; }
+.day-tab b { font-size: 0.98rem; }
+.day-tab small { font-size: 0.75rem; color: var(--muted); }
+.day-tab .day-best { color: var(--sky-2); font-weight: 600; }
+.day-tab:hover { border-color: var(--line); }
+.day-tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.day-tab.active small { color: #c9d6ee; }
+.day-tab.active .day-best { color: var(--sky); }
+.day-dots { display: flex; gap: 2px; width: 100%; margin: 4px 0 2px; }
+.day-dots i, .hc-legend i { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+.hc-legend i { flex: none; width: 14px; display: inline-block; }
+.dot-green { background: var(--flag-green) !important; }
+.dot-yellow { background: var(--flag-yellow) !important; }
+.dot-red { background: var(--flag-red) !important; }
+.dot-black { background: var(--flag-black) !important; }
+
+.hour-scroll { display: flex; gap: 8px; overflow-x: auto; scroll-behavior: smooth; padding: 4px 2px 8px; scroll-snap-type: x proximity; outline: none; }
+.hour-scroll::-webkit-scrollbar { height: 6px; }
+.hour-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+.hour-card { position: relative; flex: none; width: 74px; scroll-snap-align: center; font: inherit; color: var(--ink); cursor: pointer;
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 16px; padding: 10px 6px 14px; overflow: hidden;
+  display: grid; justify-items: center; gap: 3px; transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s; }
+.hour-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.hour-card:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+.hc-time { font-size: 1.35rem; font-weight: 800; line-height: 1; letter-spacing: -0.5px; }
+.hc-time small { font-size: 0.75rem; font-weight: 700; margin-left: 1px; }
+.hc-sky { font-size: 1.15rem; line-height: 1.2; }
+.hc-wind { display: inline-flex; align-items: center; gap: 2px; }
+.hc-wind b { font-size: 1.15rem; }
+.hc-wind .cond-arrow { fill: currentColor; }
+.hc-gust, .hc-wave { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
+.hc-flag { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: var(--line); }
+.hc-green .hc-flag { background: var(--flag-green); }
+.hc-yellow .hc-flag { background: var(--flag-yellow); }
+.hc-red .hc-flag { background: var(--flag-red); }
+.hc-black .hc-flag { background: var(--flag-black); }
+.hc-night { background: #eef0f5; color: #6b7287; }
+.hc-night .hc-flag { background: repeating-linear-gradient(135deg, #8a8f99 0 3px, #c9ccd2 3px 6px); }
+.hc-star { position: absolute; top: 4px; right: 6px; font-size: 0.8rem; color: var(--gold); }
+.hour-card.active { background: var(--navy); color: #fff; border-color: var(--navy); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(36, 49, 80, 0.3); }
+.hour-card.active .hc-gust, .hour-card.active .hc-wave { color: #c9d6ee; }
+.hc-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.75rem; color: var(--muted); }
+.hc-legend span { display: inline-flex; align-items: center; gap: 5px; }
+:root[data-theme='dark'] .hc-night { background: #1b2238; color: #9aa6c4; }
+
+/* Le sélecteur ne reste collé en haut que sur grand écran : sur téléphone il prendrait trop de place */
+@media (max-width: 999px) {
+  .time-card { position: static; border-radius: var(--radius); margin: 0; padding: 12px; gap: 10px; }
+  .day-tab { padding: 6px 8px; }
+  .day-tab b { font-size: 0.88rem; }
+  .hour-card { width: 66px; }
+}
+.hc-live { font-size: 0.95rem; font-weight: 800; color: var(--port); letter-spacing: 0; }
+.hour-card.active .hc-live { color: #ff9b9b; }

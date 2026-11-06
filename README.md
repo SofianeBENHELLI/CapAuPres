@@ -1,6 +1,6 @@
 # Cap au Près
 
-Application web (PWA) pour apprendre la voile en jouant dans la baie de La Baule avec le CNBPP : théorie, réflexes, matelotage, missions, barre en temps réel, régate en flotte, séance moniteur par QR code, conditions en temps réel (vent, vagues, marée, webcam).
+Application web (PWA) pour apprendre la voile en jouant dans la baie de La Baule avec le CNBPP : théorie, réflexes, matelotage, missions, barre en temps réel, régate en flotte, conditions en temps réel (vent, vagues, marée, webcam).
 
 Code récupéré depuis la version en ligne https://voile.benhelli.org (le dépôt source d'origine avait été perdu). Les outils de build et les tests d'origine n'étaient pas publiés et manquent donc ici.
 

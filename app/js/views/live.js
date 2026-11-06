@@ -13,7 +13,6 @@ import { xpBreakdown } from '../core/progress.js';
 import { confetti, celebrate } from '../ui/fx.js';
 import { RULE_TEXT, ZONE_LENGTHS } from '../core/rules.js';
 import { getBoat } from '../core/boats.js';
-import { recordForSession } from './session.js';
 
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -364,7 +363,6 @@ export function render(root, params, section) {
     const xpBefore = xpBreakdown().total;
     const best = store.saveLevel(level.id, score, time, { mode: regatta ? 'regate' : 'barre' });
     const gained = xpBreakdown().total - xpBefore;
-    recordForSession({ mission: level.id, score });
     window.dispatchEvent(new CustomEvent('progress'));
     const rank = regatta ? race.ranking().indexOf(p) + 1 : null;
     const myRules = [...new Set(race.events.filter((e) => e.type === 'foul' && e.boat === 'me').map((e) => e.rule))];

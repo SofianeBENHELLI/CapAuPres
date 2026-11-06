@@ -1,7 +1,6 @@
 import { LEVELS, dailySeed } from '../core/levels.js';
 import { playableRandomLevel } from '../core/challenge.js';
 import { todayWind } from '../core/weather.js';
-import { recordForSession } from './session.js';
 import { solve } from '../core/solver.js';
 import { centerOf } from '../core/course.js';
 import { simulate, stateAt } from '../core/sim.js';
@@ -675,7 +674,6 @@ function playLevelScreen(root, opts) {
       const xpBefore = xpBreakdown().total;
       const best = storeId ? store.saveLevel(storeId, score, sim.time) : dailyId ? store.daily(dailyId) < score : false;
       if (dailyId) store.saveDaily(dailyId, score);
-      if (storeId) recordForSession({ mission: storeId, score });
       const xpAfter = xpBreakdown().total;
       const gained = xpAfter - xpBefore;
       if (stars >= 2 || (best && gained)) setTimeout(() => confetti(stars === 3 ? 220 : 120), 150);
