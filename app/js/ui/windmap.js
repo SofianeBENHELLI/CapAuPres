@@ -66,6 +66,7 @@ export function windMapNode() {
         <button class="chip active" data-layer="current" aria-pressed="true">🌊 Courant</button>
       </div>
       <span class="pill" id="wmWhen"></span>
+      <button class="btn small wm-max-btn" id="wmMax" aria-pressed="false" title="Agrandir la carte">⤢ Plein écran</button>
     </div>
     <div class="wm-wrap">
       <svg class="wm-map" viewBox="${BOX.minX} ${-BOX.maxY} ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img">
@@ -81,6 +82,22 @@ export function windMapNode() {
       <div class="map-credit">${OSM_CREDIT}</div>
     </div>
     <p class="muted small-print" id="wmNote"></p>`;
+  // Plein écran : la carte occupe toute la fenêtre (Échap ou le bouton pour revenir).
+  const maxBtn = node.querySelector('#wmMax');
+  const setMax = (on) => {
+    node.classList.toggle('wm-max', on);
+    document.body.classList.toggle('wm-max-open', on);
+    maxBtn.textContent = on ? '✕ Fermer' : '⤢ Plein écran';
+    maxBtn.setAttribute('aria-pressed', on);
+    maxBtn.title = on ? 'Revenir à la page' : 'Agrandir la carte';
+  };
+  maxBtn.onclick = () => setMax(!node.classList.contains('wm-max'));
+  const onKey = (e) => {
+    if (!node.isConnected) return document.removeEventListener('keydown', onKey);
+    if (e.key === 'Escape' && node.classList.contains('wm-max')) setMax(false);
+  };
+  document.addEventListener('keydown', onKey);
+  window.addEventListener('hashchange', () => setMax(false), { once: true });
   node.querySelector('.wm-toggles').onclick = (e) => {
     const b = e.target.closest('.chip');
     if (!b) return;
