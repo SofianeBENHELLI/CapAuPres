@@ -81,7 +81,7 @@ export function windMapNode() {
       <div class="wm-legend" id="wmLegend"></div>
       <div class="map-credit">${OSM_CREDIT}</div>
     </div>
-    <p class="muted small-print" id="wmNote"></p>`;
+    <details class="met-more-txt wm-notes"><summary>Lire la carte</summary><p class="muted small-print" id="wmNote"></p></details>`;
   // Plein écran : la carte occupe toute la fenêtre (Échap ou le bouton pour revenir).
   const maxBtn = node.querySelector('#wmMax');
   const setMax = (on) => {

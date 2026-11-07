@@ -8,6 +8,7 @@ import { xpBreakdown, gradeOf, GRADES, BADGES, earnedBadges, examChecks } from '
 import { perksOf } from '../core/look.js';
 import { boatIcon } from '../ui/boat.js';
 import { schedule, cloudStatus, resetCloud } from '../core/cloud.js';
+import { dateInputHTML, bindDateInput } from '../ui/dateinput.js';
 import { lookPickerHTML, bindLookPicker } from '../ui/lookpicker.js';
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -31,9 +32,7 @@ export function render(root, params = []) {
               <label class="name-field">Pseudo
                 <input id="pname" maxlength="24" autocomplete="nickname" value="${esc(store.name)}" placeholder="Ton pseudo" />
               </label>
-              <label class="name-field">Date de naissance
-                <input id="pbirth" type="date" min="1920-01-01" max="${new Date().toISOString().slice(0, 10)}" value="${esc(store.birth)}" />
-              </label>
+              ${dateInputHTML('pbirth', store.birth)}
             </div>
             <p class="cloud-line" id="cloudLine" role="status"></p>
             <h2 style="margin:8px 0 0">${g.name}</h2>
@@ -139,8 +138,9 @@ export function render(root, params = []) {
   };
   cloudLine();
   window.addEventListener('cloudstatus', cloudLine);
-  root.querySelector('#pbirth').addEventListener('change', (e) => {
-    store.setBirth(e.target.value);
+  bindDateInput(root.querySelector('#pbirth'), (iso) => {
+    if (!iso || iso === store.birth) return;
+    store.setBirth(iso);
     schedule(200);
     cloudLine();
   });

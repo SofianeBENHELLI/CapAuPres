@@ -6,6 +6,7 @@ import { boatSVG, windArrowSVG } from '../ui/boat.js';
 import { store } from '../store.js';
 import { pickBackup, openProfile } from '../ui/backup.js';
 import { peek } from '../core/cloud.js';
+import { dateInputHTML, bindDateInput } from '../ui/dateinput.js';
 import { mergeProfiles } from '../core/merge.js';
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -21,26 +22,28 @@ export function render(root, params) {
       <div>
         <h1>Bienvenue à bord !</h1>
         <p>L’école de voile du <b>Cercle Nautique La Baule – Le Pouliguen – Pornichet</b> dans ta poche : apprends la théorie, entraîne tes réflexes, puis navigue dans la baie de La Baule.</p>
-        <label class="name-field">Ton pseudo
-          <input id="pname" maxlength="24" autocomplete="nickname" placeholder="Ex. Moussaillon44" value="${esc(store.name)}" />
-        </label>
-        <div class="cloud-restore">
-          <b>☁️ Tu as déjà joué sur un autre appareil ?</b>
-          <span class="muted">Mets ton pseudo ci-dessus et ta date de naissance : ta progression revient.</span>
-          <div class="row">
-            <input id="rbirth" type="date" min="1920-01-01" max="${new Date().toISOString().slice(0, 10)}" aria-label="Date de naissance" />
-            <button class="btn small primary" id="cloudRestore">Retrouver ma progression</button>
+        <form class="signin" id="signin" novalidate>
+          <div class="id-fields">
+            <label class="name-field">Ton pseudo
+              <input id="pname" maxlength="24" autocomplete="nickname" autocapitalize="off" placeholder="Ex. Moussaillon44" value="${esc(store.name)}" required />
+            </label>
+            ${dateInputHTML('pbirth', store.birth)}
           </div>
+          <button class="btn primary" id="signGo" type="submit">C’est parti ⛵</button>
+          <small class="muted">Déjà joué sur un autre appareil ? Mets le même pseudo et la même date : ta progression revient toute seule.</small>
           <small class="save-msg" id="cloudMsg" role="status"></small>
-        </div>
-        <div class="comeback">
-          <b>Déjà venu·e ?</b>
-          ${others.map((p) => `<button class="btn small" data-open="${p.id}">⛵ Reprendre ${esc(p.name || 'le profil sans pseudo')}</button>`).join('')}
-          <button class="btn small ghost" id="restore">⬆️ Reprendre une sauvegarde</button>
-          <small class="save-msg bad" id="saveMsg" role="status"></small>
-        </div>
+        </form>
+        <details class="comeback-more"><summary class="muted">Autres options</summary>
+          <div class="comeback">
+            ${others.map((p) => `<button class="btn small" data-open="${p.id}">⛵ Reprendre ${esc(p.name || 'le profil sans pseudo')}</button>`).join('')}
+            <button class="btn small ghost" id="restore">⬆️ Reprendre une sauvegarde (fichier)</button>
+            <button class="btn small ghost" id="skipId">Jouer sans sauvegarde en ligne</button>
+            <small class="save-msg bad" id="saveMsg" role="status"></small>
+          </div>
+        </details>
       </div>
     </section>` : ''}
+    <div id="boatStep" ${first && !(store.name && store.birth) ? 'hidden' : ''}>
     <div class="section-title"><h1>${first ? 'Choisis ton bateau' : 'Change de bateau'}</h1></div>
     <p class="muted" style="margin-top:-6px">Le bateau change le dessin, les vitesses, les manœuvres, les réglages et donc les meilleures routes. Ta progression est gardée pour chaque bateau, et tu peux en changer à tout moment.</p>
     <div class="boat-grid">
@@ -73,32 +76,49 @@ export function render(root, params) {
           </div>
         </button>`;
       }).join('')}
+    </div>
     </div>`;
 
   root.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => openProfile(() => store.switchProfile(b.dataset.open))));
-  root.querySelector('#cloudRestore')?.addEventListener('click', async (e) => {
+  // Premier lancement : pseudo + date de naissance. Compte existant → progression récupérée,
+  // sinon nouveau compte (enregistré en ligne dès la première progression).
+  let birthIso = store.birth;
+  bindDateInput(root.querySelector('#pbirth'), (iso) => (birthIso = iso));
+  const showBoats = () => {
+    const step = root.querySelector('#boatStep');
+    step.hidden = false;
+    step.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  root.querySelector('#skipId')?.addEventListener('click', () => {
+    store.setName(root.querySelector('#pname').value.trim());
+    showBoats();
+  });
+  root.querySelector('#signin')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const name = root.querySelector('#pname').value.trim();
-    const birth = root.querySelector('#rbirth').value;
     const m = root.querySelector('#cloudMsg');
+    const btn = root.querySelector('#signGo');
     const say = (t, bad) => { m.textContent = t; m.classList.toggle('bad', !!bad); };
-    if (!name || !birth) return say('Il faut ton pseudo et ta date de naissance.', true);
-    e.target.disabled = true;
-    say('Recherche…');
+    if (!name) return say('Choisis un pseudo.', true);
+    if (!birthIso) return say('Date de naissance au format JJ/MM/AAAA, par exemple 27/12/2012.', true);
+    btn.disabled = true;
+    say('Recherche de ton compte…');
+    let remote = null;
     try {
-      const remote = await peek(name, birth);
-      if (!remote) {
-        e.target.disabled = false;
-        return say('Aucune progression trouvée avec ce pseudo et cette date de naissance.', true);
-      }
-      openProfile(() => {
-        store.setName(name);
-        store.setBirth(birth);
-        store.adopt(mergeProfiles(store.snapshot(), remote));
-      });
+      remote = await peek(name, birthIso);
     } catch {
-      e.target.disabled = false;
-      say('Impossible de joindre le serveur : vérifie ta connexion.', true);
+      say('Pas de connexion : on continue, ta progression sera sauvegardée dès le retour du réseau.');
     }
+    store.setName(name);
+    store.setBirth(birthIso);
+    btn.disabled = false;
+    if (remote) {
+      say('✓ Compte retrouvé, ta progression revient !');
+      if (remote.boat) return openProfile(() => store.adopt(mergeProfiles(store.snapshot(), remote)));
+      store.adopt(mergeProfiles(store.snapshot(), remote));
+      window.dispatchEvent(new CustomEvent('progress'));
+    } else if (m.textContent.startsWith('Recherche')) say(`✓ Bienvenue ${name} ! Ton compte est créé : choisis ton bateau.`);
+    showBoats();
   });
   root.querySelector('#restore')?.addEventListener('click', async () => {
     try {

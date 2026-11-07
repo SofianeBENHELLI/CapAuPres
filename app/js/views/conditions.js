@@ -115,19 +115,30 @@ function hourCards(g, selO) {
   </button>`).join('');
 }
 
-function flagCard(flag, boat, s) {
+// Synthèse de l'heure choisie : drapeau + chiffres clés. Le texte (pourquoi, à savoir) se déplie.
+function summaryCard(flag, s) {
   if (!flag) return '';
-  return `<div class="card flag-card flag-bg-${flag.color}">
-    ${flagSVG(flag.color, 64)}
-    <div>
-      <small>Pour tout le club, ${s.live ? 'maintenant' : whenLabel(s.at).toLowerCase()}</small>
-      <b>${flag.label} : ${flag.text}</b>
-      ${flag.why.length ? `<span>Pourquoi : ${flag.why.join(' · ')}.</span>` : '<span>Vent et mer raisonnables.</span>'}
-      ${flag.warnings?.length ? `<span>À savoir : ${flag.warnings.join(' · ')}.</span>` : ''}
+  const next = s.tide?.next?.[0];
+  const notes = [...flag.why, ...(flag.warnings || [])];
+  return `<div class="card met-sum flag-bg-${flag.color}">
+    <div class="met-sum-top">
+      ${flagSVG(flag.color, 52)}
+      <div class="met-sum-txt">
+        <small>Pour tout le club · ${s.live ? 'maintenant' : whenLabel(s.at).toLowerCase()}</small>
+        <b>${(([l]) => l.charAt(0).toUpperCase() + l.slice(1))([flag.label.replace('Drapeau ', '')])} · ${flag.text}</b>
+      </div>
     </div>
-    <details class="flag-help"><summary>Les drapeaux</summary>
-      <ul>${Object.entries(FLAGS).map(([c, f]) => `<li>${flagSVG(c, 20)} <b>${f.label.replace('Drapeau ', '')}</b> : ${f.text}</li>`).join('')}</ul>
-      <small>Calcul indicatif de Cap au Près, le même pour tous les bateaux : seuls le vent, les rafales et les vagues font changer le drapeau. Ce n’est pas le drapeau officiel du club.</small>
+    <div class="met-kpis">
+      ${s.wind ? `<span class="kpi">${arrow(s.wind.from, 22)}<b>${s.wind.kn}</b><small>nds · raf. ${s.wind.gust}<br>${compass(s.wind.from)}</small></span>` : ''}
+      ${s.waves ? `<span class="kpi"><span class="kpi-ico">🌊</span><b>${num(s.waves.height)}</b><small>m<br>${num(s.waves.period, 0)} s</small></span>` : ''}
+      ${s.sky ? `<span class="kpi"><span class="kpi-ico">${s.night ? '🌙' : s.sky.icon}</span><b>${s.temp}°</b><small>${s.water != null ? `eau ${num(s.water, 0)}°` : ''}</small></span>` : ''}
+      ${next ? `<span class="kpi"><span class="kpi-ico">${next.type === 'PM' ? '⬆️' : '⬇️'}</span><b>${hhmm(next.time)}</b><small>${next.type === 'PM' ? 'pleine mer' : 'basse mer'}</small></span>` : ''}
+    </div>
+    ${notes.length ? `<details class="met-more-txt"><summary>${flag.why.length ? 'Pourquoi' : 'À savoir'} <span class="pill">${notes.length}</span></summary>
+      <ul>${flag.why.map((w) => `<li>${w}</li>`).join('')}${(flag.warnings || []).map((w) => `<li class="muted">ℹ️ ${w}</li>`).join('')}</ul></details>` : ''}
+    <details class="met-more-txt"><summary>Les drapeaux</summary>
+      <ul class="flag-legend">${Object.entries(FLAGS).map(([c, f]) => `<li>${flagSVG(c, 18)} <b>${f.label.replace('Drapeau ', '')}</b> ${f.text}</li>`).join('')}</ul>
+      <small class="muted">Même calcul pour tous les bateaux : seuls le vent, les rafales et les vagues comptent. Indicatif, le moniteur décide.</small>
     </details>
   </div>`;
 }
@@ -137,89 +148,38 @@ function daylightLeft(s) {
   return m >= 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, '0')}` : `${m} min`;
 }
 
-// Résumé d'une ligne de l'heure choisie, dans la barre du temps qui reste visible en défilant
-// (sur téléphone, le drapeau et la carte sortent vite de l'écran).
-function nowLine(s, flag, now) {
-  return `${flag ? flagSVG(flag.color, 22) : ''}<b>${s.live ? 'Maintenant' : whenLabel(s.at, now)}</b>
-    ${flag ? `<span>${flag.label.replace('Drapeau ', '')}</span>` : ''}
-    ${s.wind ? `<span>${arrow(s.wind.from, 16)} ${s.wind.kn} nds</span>` : ''}
-    ${s.waves ? `<span>🌊 ${num(s.waves.height)} m</span>` : ''}
-`;
+// Webcam : l'image de la plage, tout de suite visible. Un toucher ouvre le direct.
+let thumb = null;
+function camCard() {
+  return `<a class="card met-cam" href="${WEBCAM_URL}" target="_blank" rel="noopener" aria-label="Webcam de la plage de La Baule, en direct">
+    <span class="cam-img">${thumb ? `<img src="${thumb.url}" alt="La plage de La Baule à ${hhmm(thumb.time)}"/>` : '<span class="cam-ph" aria-hidden="true">📹</span>'}</span>
+    <span class="cam-badge">● EN DIRECT</span>
+    <span class="cam-cap">${thumb ? `La plage à ${hhmm(thumb.time)}` : 'La plage de La Baule'} · voir le direct ↗<small>© Skaping</small></span>
+  </a>`;
 }
 
-// Miniature de la webcam, trouvée une fois en tâche de fond puis réutilisée à chaque heure choisie.
-let thumb = null;
-const thumbImg = (t) => `<img src="${t.url}" alt="Vue de la plage de La Baule à ${hhmm(t.time)}" loading="lazy"/><small>© Skaping</small>`;
-
-function content(s) {
-  const lvl = s.wind ? levelOfKn(s.wind.kn) : null;
+// Détails condensés : une ligne par sujet, le reste replié.
+function details(s) {
   const ext = s.tide?.extremes.filter((e) => e.time > s.at) || [];
   const marnage = ext.length > 1 ? Math.abs(ext[0].level - ext[1].level) : null;
+  const lvl = s.wind ? levelOfKn(s.wind.kn) : null;
   return `
-    <div class="cond-grid">
-      ${s.sky ? `<div class="card cond-tile">
-        <small class="muted">Météo</small>
-        <b class="cond-big"><span aria-hidden="true">${s.sky.icon}</span> ${s.temp}°</b>
-        <span>${s.sky.label}</span>
-      </div>` : ''}
-      ${s.sun ? `<div class="card cond-tile${s.night ? ' cond-night' : ''}">
-        <small class="muted">Soleil</small>
-        <b class="cond-big"><span aria-hidden="true">${s.night ? '🌙' : '☀️'}</span> ${s.night ? 'Nuit' : 'Jour'}</b>
-        <span>Lever ${hhmm(s.sun.rise)} · coucher ${hhmm(s.sun.set)}</span>
-        <small class="muted">${s.night ? 'Pas de visibilité : on ne navigue pas' : `Encore ${daylightLeft(s)} de jour`}</small>
-      </div>` : ''}
-      ${s.wind ? `<div class="card cond-tile wind-${lvl}">
-        <small class="muted">Vent</small>
-        <b class="cond-big">${arrow(s.wind.from, 30)} ${s.wind.kn} <small>nds</small></b>
-        <span>${compassLong(s.wind.from)} · force ${s.wind.bf}</span>
-        <small class="muted">Rafales ${s.wind.gust} nds · ${WINDS[lvl].label.toLowerCase()}</small>
-      </div>` : ''}
-      ${s.waves ? `<div class="card cond-tile">
-        <small class="muted">Vagues au large</small>
-        <b class="cond-big">${arrow(s.waves.from, 30)} ${num(s.waves.height)} <small>m</small></b>
-        <span>Période ${num(s.waves.period, 0)} s</span>
-        <small class="muted">Houle de ${compass(s.waves.from)} · plus calme près de la plage</small>
-      </div>` : ''}
-      ${s.water != null ? `<div class="card cond-tile">
-        <small class="muted">Eau</small>
-        <b class="cond-big"><span aria-hidden="true">🌡️</span> ${num(s.water)}°</b>
-        <span>${s.water < 14 ? 'Fraîche : combinaison conseillée' : s.water < 18 ? 'Combinaison conseillée' : 'Agréable'}</span>
-      </div>` : ''}
+    <div class="card met-facts">
+      ${s.wind ? `<div><small>Vent</small><b>${compassLong(s.wind.from)}</b><span>force ${s.wind.bf} · ${WINDS[lvl].label.toLowerCase()}</span></div>` : ''}
+      ${s.waves ? `<div><small>Vagues au large</small><b>${num(s.waves.height)} m · ${num(s.waves.period, 0)} s</b><span>houle de ${compass(s.waves.from)}</span></div>` : ''}
+      ${s.sun ? `<div><small>Soleil</small><b>${hhmm(s.sun.rise)} → ${hhmm(s.sun.set)}</b><span>${s.night ? 'nuit : on ne navigue pas' : `encore ${daylightLeft(s)} de jour`}</span></div>` : ''}
+      ${s.water != null ? `<div><small>Eau</small><b>${num(s.water)}°</b><span>${s.water < 18 ? 'combinaison conseillée' : 'agréable'}</span></div>` : ''}
+      ${s.current ? `<div><small>Courant</small><b>${num(s.current.kn)} nd</b><span>vers ${compass(s.current.to)}</span></div>` : ''}
     </div>
-
     ${s.tide ? `<div class="card cond-tide">
       <div class="row" style="justify-content:space-between;align-items:baseline">
-        <h2 class="h3" style="margin:0">🌙 Marée · ${whenLabel(s.at).replace(/ \d+h$/, '').toLowerCase()}</h2>
-        <span class="pill">${s.tide.rising ? '↗ Elle monte' : '↘ Elle descend'}</span>
+        <h2 class="h3" style="margin:0">🌙 Marée</h2>
+        <span class="pill">${s.tide.rising ? '↗ monte' : '↘ descend'}</span>
       </div>
-      <p class="tide-next">${s.tide.next.map((e) => `<span><b>${e.type === 'PM' ? 'Pleine mer' : 'Basse mer'}</b> ${whenLabel(e.time).replace(/ \d+h$/, '') === whenLabel(s.at).replace(/ \d+h$/, '') ? '' : `${whenLabel(e.time).replace(/ \d+h$/, '').toLowerCase()} `}${hhmm(e.time)}</span>`).join('')}${marnage ? `<span class="muted">Marnage ≈ ${num(marnage)} m</span>` : ''}</p>
+      <p class="tide-next">${s.tide.next.map((e) => `<span><b>${e.type === 'PM' ? 'PM' : 'BM'}</b> ${hhmm(e.time)}</span>`).join('')}${marnage ? `<span class="muted">marnage ≈ ${num(marnage)} m</span>` : ''}</p>
       ${tideSVG(s.tide, s.at)}
-      <p class="muted small-print">Heures indicatives (modèle Open-Meteo, à quelques minutes près). Pour naviguer, l’annuaire du <a href="https://maree.shom.fr/" target="_blank" rel="noopener">SHOM</a> fait foi. À marée basse, attention aux cailloux de la baie !</p>
-    </div>` : ''}
-
-    ${s.hours ? `<div class="card">
-      <h2 class="h3" style="margin-top:0">💨 Le vent ${s.live ? 'des prochaines heures' : `à partir de ${whenLabel(s.at).toLowerCase()}`}</h2>
-      <div class="cond-hours" tabindex="0" role="group" aria-label="Vent heure par heure">${s.hours.map((h) => `<div class="cond-hour wind-${levelOfKn(h.kn)}">
-        <small>${h.time.getHours()}h</small>
-        <span aria-hidden="true">${h.sky.icon}</span>
-        ${arrow(h.from, 22)}
-        <b>${h.kn}</b>
-        <small class="muted">${h.gust}</small>
-      </div>`).join('')}</div>
-      <p class="muted small-print">Vent moyen en nœuds, rafales en dessous. Couleur : <span class="lg wind-light">petit temps</span> <span class="lg wind-medium">moyen</span> <span class="lg wind-strong">fort</span>.</p>
-    </div>` : ''}
-
-    <a class="card cond-webcam" href="${WEBCAM_URL}" target="_blank" rel="noopener">
-      <span class="cam-thumb">${thumb ? thumbImg(thumb) : '<span class="cam-ico" aria-hidden="true">📹</span>'}</span>
-      <div>
-        <b>Webcam de la plage de La Baule</b>
-        <span>${thumb ? `Image de ${hhmm(thumb.time)} · touche pour le direct, par Skaping.` : 'Les images en direct de la baie, par Skaping.'}</span>
-      </div>
-      <span class="btn primary small">Voir en direct ↗</span>
-    </a>
-
-    <div class="callout">⚠️ Ces infos aident à se préparer, ce ne sont pas des prévisions officielles. Avant de partir : <a href="https://meteofrance.com/meteo-marine" target="_blank" rel="noopener">météo marine</a>, gilet, et c’est le moniteur qui décide si on sort.</div>
-    <p class="muted small-print">Données <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0) · Webcam © Skaping.</p>`;
+      <details class="met-more-txt"><summary>À propos des heures de marée</summary><p class="muted small-print">Modèle Open-Meteo, à quelques minutes près. L’annuaire du <a href="https://maree.shom.fr/" target="_blank" rel="noopener">SHOM</a> fait foi. À marée basse, attention aux cailloux !</p></details>
+    </div>` : ''}`;
 }
 
 export function render(root) {
@@ -246,39 +206,39 @@ export function render(root) {
     const groups = dayGroups(strip, now);
     const dayOf = (o) => groups.find((g) => g.hours.some((h) => h.o === o)) || groups[0];
     box.innerHTML = `
-      <div class="cond-layout">
-      <div class="cond-main">
-      <div class="card time-card">
-        <div class="tc-head"><h2 class="h3">🗓️ Choisis ton créneau</h2><button class="btn small" id="cnowbtn">Maintenant</button></div>
-        <div class="day-tabs" id="cdays" role="tablist" aria-label="Jour"></div>
-        <div class="hour-scroll" id="chours" role="listbox" aria-label="Heure" tabindex="0"></div>
-        <div class="hc-legend" aria-hidden="true"><span><i class="dot-green"></i>vert</span><span><i class="dot-yellow"></i>jaune</span><span><i class="dot-red"></i>rouge</span><span><i class="dot-black"></i>noir</span><span>★ meilleur créneau</span></div>
-        <div class="time-now" id="cnow" aria-hidden="true"></div>
-      </div>
-      <div id="cflag" aria-live="polite"></div>
-      <div id="wmslot"></div>
-      </div>
-      <div class="cond-side">
-      <div class="cond-head">
-        <div>
+      <div class="met">
+        <div class="met-head">
           <h1 class="h2" id="ctitle"></h1>
-          <p class="muted">Baie de La Baule · ${data.stale ? '⚠️ hors ligne, dernière lecture' : 'mis à jour'} à ${hhmm(new Date(data.fetchedAt))}</p>
+          <span class="muted small-print">${data.stale ? '⚠️ hors ligne · ' : ''}màj ${hhmm(new Date(data.fetchedAt))}</span>
+          <button class="btn small ghost" id="crefresh" aria-label="Actualiser">↻</button>
         </div>
-        <button class="btn small" id="crefresh">↻ Actualiser</button>
-      </div>
-      <div id="ccontent" class="cond-page"></div>
-      </div>
+        <div class="met-top">
+          <div id="cflag" aria-live="polite"></div>
+          <div id="ccam"></div>
+        </div>
+        <div class="card time-card">
+          <div class="tc-head"><h2 class="h3">🗓️ Créneau</h2><button class="btn small" id="cnowbtn">Maintenant</button></div>
+          <div class="day-tabs" id="cdays" role="tablist" aria-label="Jour"></div>
+          <div class="hour-scroll" id="chours" role="listbox" aria-label="Heure" tabindex="0"></div>
+        </div>
+        <div class="met-bottom">
+          <div id="wmslot"></div>
+          <div id="ccontent"></div>
+        </div>
+        <details class="card met-more-txt met-foot"><summary>⚠️ Avant de partir</summary>
+          <p>Ces infos aident à se préparer, ce ne sont pas des prévisions officielles : <a href="https://meteofrance.com/meteo-marine" target="_blank" rel="noopener">météo marine</a>, gilet, et c’est le moniteur qui décide si on sort.</p>
+          <p class="muted small-print">Données <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0) · Webcam © Skaping.</p>
+        </details>
       </div>`;
     const wmap = windMapNode();
     box.querySelector('#wmslot').replaceWith(wmap);
     const show = (o) => {
       offset = o;
       const s = summarize(data, atOffset(o, now), now);
-      box.querySelector('#ctitle').textContent = s.live ? '🌊 Conditions en temps réel' : `🔭 Prévision · ${whenLabel(s.at, now)}`;
+      box.querySelector('#ctitle').textContent = s.live ? '🌊 Météo · maintenant' : `🔭 Météo · ${whenLabel(s.at, now)}`;
       const flag = flagFor(s, boat.id);
-      box.querySelector('#cflag').innerHTML = flagCard(flag, boat, s);
-      box.querySelector('#cnow').innerHTML = nowLine(s, flag, now);
-      box.querySelector('#ccontent').innerHTML = content(s);
+      box.querySelector('#cflag').innerHTML = summaryCard(flag, s);
+      box.querySelector('#ccontent').innerHTML = details(s);
       updateWindMap(wmap, s, s.live ? 'Maintenant' : whenLabel(s.at, now));
       const g = dayOf(o);
       box.querySelector('#cdays').innerHTML = dayTabs(groups, g.k);
@@ -316,14 +276,12 @@ export function render(root) {
       load(true);
     };
     show(offset);
+    box.querySelector('#ccam').innerHTML = camCard();
     findWebcamThumb().then((t) => {
       if (!t || !alive) return;
       thumb = t;
-      const card = box.querySelector('.cond-webcam');
-      if (card) {
-        card.querySelector('.cam-thumb').innerHTML = thumbImg(t);
-        card.querySelector(':scope > div > span').textContent = `Image de ${hhmm(t.time)} · touche pour le direct, par Skaping.`;
-      }
+      const c = box.querySelector('#ccam');
+      if (c) c.innerHTML = camCard();
     });
   };
   load(false);
