@@ -1389,3 +1389,17 @@ body.wm-max-open .tabbar, body.wm-max-open .topbar { visibility: hidden; }
   border: 0; background: var(--navy); color: #fff; font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); }
 .wm-card.wm-max .map-credit { top: auto; bottom: 8px; }
 .wm-card.wm-max .wm-notes { display: none; }
+
+/* Pastille du profil : pseudo bien visible, grade en dessous, cliquable */
+.grade-chip { gap: 8px; padding: 4px 12px 4px 6px; }
+.grade-chip .g-ico { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--card); font-size: 16px; box-shadow: 0 1px 3px rgba(36, 49, 80, 0.15); }
+.grade-chip .gname { display: grid; line-height: 1.1; min-width: 0; }
+.grade-chip .g-who { font-size: 13px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+.grade-chip .g-rank { font-size: 10px; font-weight: 600; color: var(--muted); }
+.grade-chip:hover { box-shadow: 0 0 0 2px var(--sky); }
+@media (max-width: 999px) {
+  .grade-chip .gname { display: grid !important; }
+  .grade-chip .g-who { max-width: 96px; }
+  .grade-chip .chip-bar { width: 26px; }
+}
+@media (max-width: 360px) { .grade-chip .chip-bar, .grade-chip .g-rank { display: none; } }

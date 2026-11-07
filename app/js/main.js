@@ -42,10 +42,12 @@ function refreshChips() {
   const b = getBoat();
   chip.innerHTML = `${boatIcon(b.id, 22, true)} <span>${b.name}</span>`;
   chip.hidden = !store.boat;
-  gchip.innerHTML = `${g.icon} <span class="gname"><b>${g.name}</b></span><span class="chip-bar"><i style="width:${Math.round(g.pct * 100)}%"></i></span>`;
+  const who = store.name ? store.name.replace(/[<>&"]/g, '') : 'Profil';
+  gchip.innerHTML = `<span class="g-ico">${g.icon}</span><span class="gname"><b class="g-who">${who}</b><small class="g-rank">${g.name}</small></span><span class="chip-bar"><i style="width:${Math.round(g.pct * 100)}%"></i></span>`;
   gchip.title = g.next
     ? g.blocked ? `${g.name} : il ne te reste que l’épreuve pour devenir ${g.next.name}` : `${g.name} : encore ${g.toGo} XP pour devenir ${g.next.name}`
     : `${g.name} : grade maximal`;
+  gchip.title = `${store.name ? `${store.name} · ` : ''}${gchip.title} (ouvrir le profil)`;
   gchip.setAttribute('aria-label', gchip.title);
   gchip.hidden = !store.boat;
 }

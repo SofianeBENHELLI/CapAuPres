@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b11-carte-reduire';
+const VERSION = 'b12-pastille-pseudo';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',
