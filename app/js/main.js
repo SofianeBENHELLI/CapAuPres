@@ -57,6 +57,26 @@ window.addEventListener('progress', refreshChips);
 refreshChips();
 startCloud();
 
+// Barre d'onglets du bas : sur Safari iPhone/iPad, quand la barre d'adresse se replie ou que la page
+// rebondit en bas, une barre « position: fixed; bottom: 0 » peut rester accrochée au milieu de l'écran.
+// On la recale sur le bas réellement visible (visualViewport) à chaque défilement.
+const tabbar = document.querySelector('.tabbar');
+const vv = window.visualViewport;
+if (tabbar && vv) {
+  let raf = 0;
+  const pin = () => {
+    raf = 0;
+    const gap = window.innerHeight - (vv.height + vv.offsetTop);
+    // clavier ouvert (gros écart) ou zoom au doigt : on laisse faire le navigateur
+    tabbar.style.transform = vv.scale === 1 && Math.abs(gap) > 0.5 && Math.abs(gap) < 160 ? `translate3d(0, ${-gap}px, 0)` : '';
+  };
+  const queue = () => { if (!raf) raf = requestAnimationFrame(pin); };
+  vv.addEventListener('resize', queue);
+  vv.addEventListener('scroll', queue);
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('orientationchange', () => setTimeout(pin, 300));
+}
+
 const ROUTES = {
   home, jeux: games, bateau: boat, apprendre: learn, naviguer: play, mission: game, defi: game, reflexes, profil: profile, barre: live, regate: live, conditions,
 };

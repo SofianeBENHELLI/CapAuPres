@@ -52,9 +52,11 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-html { height: 100%; }
+/* Défilement par le document seul (pas de hauteur imposée à html) : sur Safari iPhone/iPad, une hauteur
+   fixe sur html décale les barres fixes quand la barre d'adresse se replie. */
+html { overscroll-behavior-y: none; }
 /* min-height et non height : avec une hauteur fixe, la barre du haut (sticky dans body) partait au défilement */
-body { min-height: 100%; }
+body { min-height: 100vh; min-height: 100dvh; overscroll-behavior-y: none; }
 body {
   background: var(--bg);
   color: var(--ink);
@@ -157,6 +159,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 24px; }
     height: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom);
     background: var(--card); border-top: 1px solid var(--line);
     box-shadow: 0 -4px 20px rgba(36, 49, 80, 0.08);
+    transform: translate3d(0, 0, 0); will-change: transform; backface-visibility: hidden;
   }
   .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--muted); font-size: 11px; font-weight: 600; text-decoration: none; padding: 6px 0; }
   .tabbar a .ico { font-size: 22px; line-height: 1; filter: grayscale(1); opacity: 0.7; }
@@ -634,7 +637,7 @@ a.train-card:hover { transform: translateY(-3px); }
 }
 
 /* Profil */
-.profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.profile-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 .profile-grid > section:nth-child(2) { grid-row: span 2; }
 .pc-top { display: flex; gap: 16px; align-items: flex-start; }
 .pc-icon { font-size: 54px; line-height: 1; }
@@ -652,7 +655,7 @@ a.train-card:hover { transform: translateY(-3px); }
 .fleet { display: grid; gap: 8px; margin-top: 10px; }
 .fleet-row { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; background: var(--card-2); }
 .fleet-row.cur { outline: 2px solid var(--sky); }
-@media (max-width: 900px) { .profile-grid { grid-template-columns: 1fr; } .profile-grid > section:nth-child(2) { grid-row: auto; } }
+@media (max-width: 900px) { .profile-grid { grid-template-columns: minmax(0, 1fr); } .profile-grid > section:nth-child(2) { grid-row: auto; } }
 
 /* Fête */
 .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 80; width: 100vw; height: 100vh; }
@@ -1403,3 +1406,15 @@ body.wm-max-open .tabbar, body.wm-max-open .topbar { visibility: hidden; }
   .grade-chip .chip-bar { width: 26px; }
 }
 @media (max-width: 360px) { .grade-chip .chip-bar, .grade-chip .g-rank { display: none; } }
+
+/* Champs pseudo / date : jamais plus larges que l'écran (sinon la page déborde et, sur téléphone,
+   la barre du bas remonte au milieu de l'écran) */
+.id-fields .name-field { min-width: 0; }
+.name-field input { width: 100%; min-width: 0; }
+/* Garde-fou : aucune page ne doit défiler en largeur */
+html, body { overflow-x: clip; }
+@media (max-width: 860px) {
+  /* le pied de page passe au-dessus de la barre d'onglets au lieu d'être caché dessous */
+  main { padding-bottom: 16px; }
+  .site-foot { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 16px); }
+}
