@@ -1381,3 +1381,11 @@ body.wm-max-open .tabbar, body.wm-max-open .topbar { visibility: hidden; }
 .comeback-more summary { cursor: pointer; font-size: 13px; }
 .comeback-more .comeback { margin-top: 8px; }
 @media (max-width: 640px) { .signin { margin: 14px auto 6px; text-align: left; } .signin .btn { justify-self: stretch; } }
+
+/* Plein écran : marges de sécurité (encoche, barre du navigateur) et croix toujours visible */
+.wm-card.wm-max { padding-top: max(12px, calc(env(safe-area-inset-top) + 8px)); padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); height: 100dvh; }
+.wm-close-fab { display: none; }
+.wm-card.wm-max .wm-close-fab { display: grid; place-items: center; position: absolute; top: 10px; right: 10px; z-index: 5; width: 46px; height: 46px; border-radius: 50%;
+  border: 0; background: var(--navy); color: #fff; font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); }
+.wm-card.wm-max .map-credit { top: auto; bottom: 8px; }
+.wm-card.wm-max .wm-notes { display: none; }

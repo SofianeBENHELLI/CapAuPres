@@ -82,22 +82,45 @@ export function windMapNode() {
       <div class="map-credit">${OSM_CREDIT}</div>
     </div>
     <details class="met-more-txt wm-notes"><summary>Lire la carte</summary><p class="muted small-print" id="wmNote"></p></details>`;
-  // Plein écran : la carte occupe toute la fenêtre (Échap ou le bouton pour revenir).
+  // Plein écran : la carte occupe toute la fenêtre. On en sort par la croix flottante (toujours
+  // visible, même sous l'encoche d'un iPhone), le bouton Fermer, Échap ou le bouton retour du téléphone.
   const maxBtn = node.querySelector('#wmMax');
-  const setMax = (on) => {
+  const closeFab = document.createElement('button');
+  closeFab.className = 'wm-close-fab';
+  closeFab.type = 'button';
+  closeFab.setAttribute('aria-label', 'Réduire la carte');
+  closeFab.textContent = '✕';
+  node.querySelector('.wm-wrap').appendChild(closeFab);
+  const isMax = () => node.classList.contains('wm-max');
+  const apply = (on) => {
     node.classList.toggle('wm-max', on);
     document.body.classList.toggle('wm-max-open', on);
-    maxBtn.textContent = on ? '✕ Fermer' : '⤢ Plein écran';
+    maxBtn.textContent = on ? '✕ Réduire' : '⤢ Plein écran';
     maxBtn.setAttribute('aria-pressed', on);
     maxBtn.title = on ? 'Revenir à la page' : 'Agrandir la carte';
   };
-  maxBtn.onclick = () => setMax(!node.classList.contains('wm-max'));
+  const open = () => {
+    if (isMax()) return;
+    apply(true);
+    history.pushState({ wmMax: true }, '', location.href);
+  };
+  const close = () => {
+    if (!isMax()) return;
+    apply(false);
+    if (history.state?.wmMax) history.back();
+  };
+  maxBtn.onclick = () => (isMax() ? close() : open());
+  closeFab.onclick = close;
   const onKey = (e) => {
     if (!node.isConnected) return document.removeEventListener('keydown', onKey);
-    if (e.key === 'Escape' && node.classList.contains('wm-max')) setMax(false);
+    if (e.key === 'Escape') close();
+  };
+  const onPop = () => {
+    if (!node.isConnected) return window.removeEventListener('popstate', onPop);
+    if (isMax()) apply(false);
   };
   document.addEventListener('keydown', onKey);
-  window.addEventListener('hashchange', () => setMax(false), { once: true });
+  window.addEventListener('popstate', onPop);
   node.querySelector('.wm-toggles').onclick = (e) => {
     const b = e.target.closest('.chip');
     if (!b) return;
