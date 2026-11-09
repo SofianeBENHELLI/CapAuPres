@@ -3,8 +3,8 @@
 // jamais perdre de progression. Partagé par l'appli et par la fonction serveur.
 
 // Champs propres à l'appareil, jamais envoyés au serveur.
-// Le pseudo et la date de naissance restent sur l'appareil : le serveur ne garde que la progression.
-export const LOCAL_ONLY = ['name', 'birth', 'cloud', 'lastBackup', 'seenXp', 'sessions', 'mySession'];
+// La date de naissance reste sur l'appareil. Le pseudo est envoyé (affiché dans le suivi des profils).
+export const LOCAL_ONLY = ['birth', 'cloud', 'lastBackup', 'seenXp', 'sessions', 'mySession'];
 
 export function cloudPayload(profile) {
   const out = { ...profile };

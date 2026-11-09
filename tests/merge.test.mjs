@@ -20,9 +20,9 @@ test('la fusion garde le meilleur de chaque appareil', () => {
   assert.deepEqual(mergeProfiles(a, b).lessons, mergeProfiles(b, a).lessons);
 });
 
-test('prénom et date de naissance ne partent jamais au serveur', () => {
+test('la date de naissance ne part jamais au serveur, le pseudo oui', () => {
   const p = cloudPayload({ name: 'Léo', birth: '2014-05-03', cloud: { key: 'x' }, levels: {} });
-  assert.equal(p.name, undefined);
+  assert.equal(p.name, 'Léo');
   assert.equal(p.birth, undefined);
   assert.equal(p.cloud, undefined);
 });
@@ -40,7 +40,7 @@ function fakeEnv() {
   const m = new Map();
   return { PEPPER: 'test', PROFILS: { get: async (k, t) => (m.has(k) ? (t === 'json' ? JSON.parse(m.get(k)) : m.get(k)) : null), put: async (k, v) => m.set(k, v) }, _m: m };
 }
-const call = (env, key, method, body) => onRequest({ env, params: { key }, request: new Request('https://x/api/profil/' + key, { method, body: body && JSON.stringify(body) }) });
+const call = (env, key, method, body) => onRequest({ env, params: { key }, request: new Request('https://x/api/profil/' + key, { method, headers: { 'CF-Connecting-IP': '203.0.113.7', 'User-Agent': 'iPhone' }, body: body && JSON.stringify(body) }) });
 
 test('API : deux appareils fusionnent sans s’écraser, la clé brute n’est pas stockée', async () => {
   const env = fakeEnv();
@@ -51,8 +51,13 @@ test('API : deux appareils fusionnent sans s’écraser, la clé brute n’est p
   const out = await r.json();
   assert.equal(out.profile.levels['optimist/m1'].score, 80);
   assert.equal(out.profile.levels['optimist/m2'].score, 40);
-  assert.equal(out.profile.name, undefined);
+  assert.equal(out.profile.name, 'Léa');
+  assert.equal(out.meta, undefined); // le suivi n'est jamais renvoyé au joueur
   assert.ok(![...env._m.keys()].some((k) => k.includes(key)));
+  const raw = JSON.parse([...env._m.values()][0]);
+  assert.equal(raw.meta.pseudo, 'Léa');
+  assert.equal(raw.meta.ip, '203.0.113.7');
+  assert.equal(raw.meta.saves, 2);
   const g = await (await call(env, key, 'GET')).json();
   assert.equal(Object.keys(g.profile.levels).length, 2);
 });

@@ -21,9 +21,12 @@ export async function onRequest({ request, env, params }) {
   if (!env.PROFILS) return json({ error: 'stockage non configuré' }, 503);
   const k = await kvKey(env, key);
 
+  // Les informations de suivi (pseudo, IP, lieu, dates) restent côté serveur : jamais renvoyées au joueur.
+  const pub = (stored) => ({ profile: stored.profile, savedAt: stored.savedAt });
+
   if (request.method === 'GET') {
     const stored = await env.PROFILS.get(k, 'json');
-    return stored ? json(stored) : json({ error: 'introuvable' }, 404);
+    return stored ? json(pub(stored)) : json({ error: 'introuvable' }, 404);
   }
 
   if (request.method === 'PUT') {
@@ -39,9 +42,21 @@ export async function onRequest({ request, env, params }) {
     const incoming = cloudPayload(body.profile);
     const stored = body.replace ? null : await env.PROFILS.get(k, 'json');
     const profile = stored ? mergeProfiles(stored.profile, incoming) : incoming;
-    const out = { profile, savedAt: Date.now() };
+    const now = Date.now();
+    const cf = request.cf || {};
+    const meta = {
+      pseudo: String(profile.name || stored?.meta?.pseudo || '').slice(0, 24),
+      ip: request.headers.get('CF-Connecting-IP') || '',
+      city: cf.city || '',
+      country: cf.country || '',
+      device: /iPad|Tablet/i.test(request.headers.get('User-Agent') || '') ? 'tablette' : /Mobi|iPhone|Android/i.test(request.headers.get('User-Agent') || '') ? 'mobile' : 'ordinateur',
+      firstSeen: stored?.meta?.firstSeen || stored?.savedAt || now,
+      lastSeen: now,
+      saves: (stored?.meta?.saves || 0) + 1,
+    };
+    const out = { profile, savedAt: now, meta };
     await env.PROFILS.put(k, JSON.stringify(out));
-    return json(out);
+    return json(pub(out));
   }
 
   return json({ error: 'méthode non autorisée' }, 405);
