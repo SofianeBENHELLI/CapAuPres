@@ -89,7 +89,7 @@ export const LEVELS = [
   mission({
     id: 'm6', num: 4, title: 'Le triangle de la Coupe d’Automne', place: 'Zone de régate',
     goal: 'Le triangle de régate du club : bouée au vent, bouée de dégagement, bouée sous le vent, puis arrivée.',
-    tip: 'Un triangle fait passer par toutes les allures : près, largue, travers. Observe la couleur de chaque bord : elle indique l’amure. La brise thermique de sud-ouest se lève l’après-midi.',
+    tip: 'Un triangle fait passer par plusieurs allures : du largue, du travers, puis du près pour finir. Observe la couleur de chaque bord : elle indique l’amure. La brise thermique de sud-ouest se lève l’après-midi.',
     lesson: 'allures', assist: true,
     wind: { from: 240, level: 'medium', name: 'Brise thermique de sud-ouest' },
     course: [
@@ -102,7 +102,7 @@ export const LEVELS = [
   mission({
     id: 'm7', num: 5, title: 'Coup de noroît', place: 'Vers Pornichet',
     goal: 'Le noroît souffle fort : descends jusqu’à l’arrivée devant le port de Pornichet.',
-    tip: 'Par vent fort, chaque manœuvre se paie. En dériveur ou en Optimist, l’empannage est risqué : un « virement lof pour lof » peut être plus sûr. En catamaran c’est l’inverse. Touche un point de manœuvre pour changer de sens de virage.',
+    tip: 'Par vent fort, chaque manœuvre se paie. En dériveur ou en Optimist, l’empannage est risqué : virer de bord au lieu d’empanner (lofer, virer, puis abattre) peut être plus sûr. En catamaran c’est l’inverse. Touche un point de manœuvre pour changer de sens de virage.',
     lesson: 'manoeuvres', assist: false,
     wind: { from: 315, level: 'strong', name: 'Noroît (vent de nord-ouest)' },
     course: [gate(5150, -1250, 80, 35, 'finish', 'Arrivée de Pornichet')],
@@ -126,7 +126,7 @@ export const LEVELS = [
   mission({
     id: 'm10', num: 8, title: 'Grande régate du CNBPP', place: 'Zone de régate',
     goal: 'Banane avec porte sous le vent, par vent fort d’ouest : la régate du club.',
-    tip: 'Tout ce que tu as appris : angle de remontée, laylines, empannage ou lof pour lof, choix du côté de la porte.',
+    tip: 'Tout ce que tu as appris : angle de remontée, laylines, empanner ou virer à la place, choix du côté de la porte.',
     lesson: 'manoeuvres', assist: false,
     wind: { from: 275, level: 'strong', name: 'Vent d’ouest frais' },
     course: [

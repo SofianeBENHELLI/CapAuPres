@@ -72,8 +72,10 @@ function promptUpdate(worker) {
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   let reloading = false;
+  // première visite : le service worker prend la main sans recharger (on ne perd pas la saisie en cours)
+  const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloading) return;
+    if (!hadController || reloading) return;
     reloading = true;
     location.reload();
   });

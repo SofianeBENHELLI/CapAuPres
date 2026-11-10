@@ -182,6 +182,8 @@ function seamarkGlyph(kind) {
       return `<rect x="-4" y="-2" width="8" height="10" fill="#111"/><rect x="-4" y="1" width="8" height="3" fill="#e5484d"/><circle cy="-6" r="2.4" fill="#111"/><circle cy="-11" r="2.4" fill="#111"/>`;
     case 'special':
       return `<circle r="6" fill="${c}" stroke="#fff" stroke-width="1.5"/><path d="M-3,-3 L3,3 M3,-3 L-3,3" stroke="#111" stroke-width="1.6"/>`;
+    case 'safe_water':
+      return `<circle r="6.5" fill="#fff" stroke="#e5484d" stroke-width="1.2"/><path d="M-2.2,-6.1 L-2.2,6.1 M2.2,-6.1 L2.2,6.1" stroke="#e5484d" stroke-width="2.4"/><circle cy="-10" r="2.4" fill="#e5484d"/>`;
     case 'lighthouse':
       return `<path d="M0,-9 L2.5,-2.5 L9,0 L2.5,2.5 L0,9 L-2.5,2.5 L-9,0 L-2.5,-2.5 Z" fill="${c}" stroke="#fff" stroke-width="1.2"/>`;
     default:

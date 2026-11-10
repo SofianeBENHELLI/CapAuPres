@@ -72,3 +72,37 @@ test('API : remise à zéro, validation', async () => {
   assert.equal((await call(env, key, 'DELETE')).status, 405);
   assert.equal((await call(env, key, 'PUT', { nope: 1 })).status, 400);
 });
+
+test('remise à zéro : elle gagne sur une ancienne progression, pas sur ce qui est joué après', () => {
+  const vieux = { updated: 100, levels: { 'optimist/m1': { score: 80 } }, lessons: { allures: { done: true, best: 100 } } };
+  const raz = { updated: 200, resetAt: 200, boat: 'optimist' };
+  const m = mergeProfiles(vieux, raz);
+  assert.deepEqual(m.levels, {});
+  assert.deepEqual(m.lessons, {});
+  assert.equal(m.resetAt, 200);
+  assert.deepEqual(mergeProfiles(raz, vieux).levels, {});
+  const apres = { updated: 300, levels: { 'optimist/m2': { score: 60 } } };
+  assert.equal(mergeProfiles(raz, apres).levels['optimist/m2'].score, 60);
+});
+
+test('les nœuds appris sur deux appareils s’additionnent', () => {
+  const m = mergeProfiles({ updated: 1, pref: { knots: { huit: true } } }, { updated: 2, pref: { knots: { chaise: true }, look: { hull: '#173d61' } } });
+  assert.deepEqual(m.pref.knots, { huit: true, chaise: true });
+  assert.equal(m.pref.look.hull, '#173d61');
+});
+
+test('rien d’exécutable ne passe par la fusion', () => {
+  const evil = '<img src=x onerror=alert(1)>';
+  const m = mergeProfiles({}, { name: `Léo${evil}`, boat: evil, levels: { 'optimist/m1': { score: 50, mode: evil }, [evil]: { score: 1 } }, lessons: { baie: { done: true, best: evil } }, reflexes: { amure: evil }, pref: { look: { hull: evil } }, seenBadges: [evil, 'matelot'] });
+  const txt = JSON.stringify(m);
+  assert.ok(!txt.includes('<'), txt);
+  assert.equal(m.levels['optimist/m1'].score, 50);
+  assert.equal(m.reflexes.amure, 0);
+  assert.deepEqual(m.seenBadges, ['matelot']);
+  assert.equal(m.boat, undefined);
+});
+
+test('pseudo sans lettre latine : une clé quand même', async () => {
+  assert.match(await cloudKey('🏴‍☠️', '2014-05-03'), /^[a-f0-9]{64}$/);
+  assert.notEqual(await cloudKey('李', '2014-05-03'), await cloudKey('Юра', '2014-05-03'));
+});

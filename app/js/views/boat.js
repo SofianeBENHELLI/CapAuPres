@@ -8,6 +8,7 @@ import { pickBackup, openProfile } from '../ui/backup.js';
 import { peek } from '../core/cloud.js';
 import { dateInputHTML, bindDateInput } from '../ui/dateinput.js';
 import { mergeProfiles } from '../core/merge.js';
+import { xpBreakdown, gradeOf } from '../core/progress.js';
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
@@ -114,8 +115,13 @@ export function render(root, params) {
     btn.disabled = false;
     if (remote) {
       say('✓ Compte retrouvé, ta progression revient !');
-      if (remote.boat) return openProfile(() => store.adopt(mergeProfiles(store.snapshot(), remote)));
-      store.adopt(mergeProfiles(store.snapshot(), remote));
+      const take = () => {
+        store.adopt(mergeProfiles(store.snapshot(), remote));
+        const xp = xpBreakdown(); // la progression retrouvée n'est pas « gagnée » à l'instant
+        store.setSeenXp(xp, gradeOf(xp.total).index);
+      };
+      if (remote.boat) return openProfile(take);
+      take();
       window.dispatchEvent(new CustomEvent('progress'));
     } else if (m.textContent.startsWith('Recherche')) say(`✓ Bienvenue ${name} ! Ton compte est créé : choisis ton bateau.`);
     showBoats();

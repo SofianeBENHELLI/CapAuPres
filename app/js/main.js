@@ -6,6 +6,7 @@
 //   #/mission/:id          une mission (tracé)  #/barre/:id  à la barre  #/regate/:id  régate en flotte
 //   #/defi/:diff/:graine   un défi aléatoire
 //   #/jeux                 jeux : défis, réflexes, ateliers
+//   #/quiz/:mode           quiz chronométrés (balisage, priorités, lexique…)
 //   #/reflexes[/mode]      mini-jeux       #/profil               profil, grade, badges
 //   #/conditions           météo, vent, marée, vagues et webcam en temps réel
 import * as home from './views/home.js';
@@ -15,6 +16,7 @@ import * as reflexes from './views/reflexes.js';
 import * as game from './views/game.js';
 import * as boat from './views/boat.js';
 import * as games from './views/games.js';
+import * as quiz from './views/quiz.js';
 import * as profile from './views/profile.js';
 import * as live from './views/live.js';
 import * as conditions from './views/conditions.js';
@@ -78,9 +80,9 @@ if (tabbar && vv) {
 }
 
 const ROUTES = {
-  home, jeux: games, bateau: boat, apprendre: learn, naviguer: play, mission: game, defi: game, reflexes, profil: profile, barre: live, regate: live, conditions,
+  home, jeux: games, quiz, bateau: boat, apprendre: learn, naviguer: play, mission: game, defi: game, reflexes, profil: profile, barre: live, regate: live, conditions,
 };
-const NAV_OF = { mission: 'naviguer', defi: 'jeux', reflexes: 'jeux', barre: 'naviguer', regate: 'naviguer', bateau: 'profil', conditions: 'conditions' };
+const NAV_OF = { mission: 'naviguer', defi: 'jeux', reflexes: 'jeux', quiz: 'jeux', barre: 'naviguer', regate: 'naviguer', bateau: 'profil', conditions: 'conditions' };
 // Anciennes adresses (versions précédentes, raccourcis installés).
 const LEGACY = { seance: '', theorie: 'apprendre', parcours: 'naviguer', lexique: 'apprendre/matelotage/lexique', noeuds: 'apprendre/matelotage/noeuds' };
 

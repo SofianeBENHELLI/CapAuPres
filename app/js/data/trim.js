@@ -46,7 +46,7 @@ export const TRIM_ALLURES = [
   // au près, le bateau se place à son meilleur angle de remontée (propre à chaque bateau)
   { id: 'pres', label: 'Près', get heading() { return Math.round(bestVmgAngles('medium').up.angle); }, sub: 'Près serré / bon plein' },
   { id: 'travers', label: 'Travers', heading: 90, sub: 'Vent à 90°' },
-  { id: 'largue', label: 'Largue', heading: 120, sub: 'Petit largue' },
+  { id: 'largue', label: 'Largue', heading: 120, sub: 'Vent à 120°' },
   { id: 'portant', label: 'Portant', heading: 160, sub: 'Grand largue / vent arrière' },
 ];
 
@@ -134,7 +134,7 @@ const DERIVEUR_TRIM = {
       v: { ecoute: 2, chariot: 1, halebas: 3, cunningham: 2, bordure: 3, foc: 1, derive: 2 },
       depth: 0.15,
       crew: 'Tout à l’arrière. Rester au grand largue plutôt que plein vent arrière : moins de roulis, moins de risque d’empannage.',
-      key: 'Hale-bas moyen (trop tendu, la bôme accroche l’eau). Un peu plus de dérive pour amortir le roulis. Empanner seulement dans une accalmie, ou virer lof pour lof.',
+      key: 'Hale-bas moyen (trop tendu, la bôme accroche l’eau). Un peu plus de dérive pour amortir le roulis. Empanner seulement dans une accalmie, ou virer de bord au lieu d’empanner.',
     },
   },
 };
@@ -199,7 +199,7 @@ const CAT_TRIM = {
       key: 'Allure la plus rapide : jouer l’écoute en permanence pour garder la coque en l’air.' },
     strong: { v: { ecoute: 2, chariot: 1, cunningham: 4, bordure: 4, rotation: 3, foc: 2, equipage: 5 }, depth: 0.1,
       crew: 'Tout le monde à l’arrière : risque d’enfournement !',
-      key: 'Choquer franchement dans les rafales, abattre un peu (tirer la barre) si la coque monte trop.' },
+      key: 'Choquer franchement dans les rafales (l’écoute, puis le chariot) si la coque monte trop. N’abattre qu’une fois au largue.' },
   },
   largue: {
     light: { v: { ecoute: 2, chariot: 1, cunningham: 1, bordure: 1, rotation: 5, foc: 2, equipage: 2 }, depth: 0.19,
@@ -326,7 +326,7 @@ const J80_CONTROLS = [
   {
     id: 'spi', name: 'Spi asymétrique', what: 'Grande voile d’avant sur le bout-dehors',
     scale: ['Rangé', 'Prêt à envoyer', 'Envoyé'],
-    rule: 'Envoyé dès le petit largue. On le règle en permanence : choquer jusqu’à ce que le guindant « frisotte », puis border un peu.',
+    rule: 'Envoyé dès qu’on dépasse le travers (plus tôt par petit temps). On le règle en permanence : choquer jusqu’à ce que le guindant « frisotte », puis border un peu.',
   },
   {
     id: 'equipage', name: 'Position de l’équipage', what: 'Rappel et placement avant / arrière',

@@ -396,7 +396,7 @@ const MANEUVERS = {
     ],
   },
   lof: {
-    label: 'Virement lof pour lof', from: 150, to: 210, dir: -1,
+    label: 'Virer au lieu d’empanner', from: 150, to: 210, dir: -1,
     intro: 'Par vent fort, plutôt qu’un empannage risqué, on <b>remonte au vent (on lofe en poussant la barre), on vire, puis on abat (en tirant la barre)</b>. Plus long mais plus sûr. Dans le jeu, clique sur un point de manœuvre pour choisir ce sens de virage.',
     steps: [
       ['On lofe (on pousse la barre)', 'Le bateau remonte progressivement jusqu’au près en bordant les voiles.', 'Le bateau remonte progressivement jusqu’au près en bordant la voile.'],
@@ -437,7 +437,7 @@ function manoeuvres(el) {
   const mb = el.querySelector('#mb');
   const setT = (k) => {
     const m = MANEUVERS[cur];
-    // le lof pour lof passe par le près : trajectoire de cap en trois temps
+    // virer au lieu d'empanner passe par le près : trajectoire de cap en trois temps
     let h;
     if (cur === 'lof') {
       const path = [150, 45, -45, -150];

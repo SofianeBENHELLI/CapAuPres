@@ -47,7 +47,7 @@ export const ALLURES = [
   { id: 'pres', get min() { return NO_GO; }, max: 55, label: 'Près serré', short: 'Près serré', color: '#8e4ec6' },
   { id: 'bonplein', min: 55, max: 75, label: 'Près (bon plein)', short: 'Près', color: '#3e63dd' },
   { id: 'travers', min: 75, max: 105, label: 'Vent de travers', short: 'Travers', color: '#0090ff' },
-  { id: 'petitlargue', min: 105, max: 135, label: 'Petit largue', short: 'Pt largue', color: '#12a594' },
+  { id: 'petitlargue', min: 105, max: 135, label: 'Largue', short: 'Largue', color: '#12a594' },
   { id: 'grandlargue', min: 135, max: 165, label: 'Grand largue', short: 'Gd largue', color: '#46a758' },
   { id: 'arriere', min: 165, max: 180.001, label: 'Vent arrière', short: 'V. arrière', color: '#f5a623' },
 ];

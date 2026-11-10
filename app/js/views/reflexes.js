@@ -29,7 +29,7 @@ const ALLURE_CHOICES = [
   { id: 'debout', label: '⛔ Vent debout', get range() { return [0, NO_GO]; } },
   { id: 'pres', label: 'Près', get range() { return [NO_GO, 75]; } },
   { id: 'travers', label: 'Travers', range: [75, 105] },
-  { id: 'petitlargue', label: 'Petit largue', range: [105, 135] },
+  { id: 'petitlargue', label: 'Largue', range: [105, 135] },
   { id: 'grandlargue', label: 'Grand largue', range: [135, 165] },
   { id: 'arriere', label: 'Vent arrière', range: [165, 180] },
 ];

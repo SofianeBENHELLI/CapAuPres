@@ -2,6 +2,12 @@
 
 Application web (PWA) pour apprendre la voile en jouant dans la baie de La Baule avec le CNBPP : théorie, réflexes, matelotage, missions, barre en temps réel, régate en flotte, conditions en temps réel (vent, vagues, marée, webcam).
 
+## Contenu
+
+- **École** : 7 leçons de base (`CORE_LESSONS`, qui comptent pour l'épreuve de Skipper) et 4 leçons « pour aller plus loin » : partir de la plage et revenir, dessaler et se redresser, météo et marée, la régate. Données dans `app/js/data/lessons.js`, écrans dans `app/js/views/theory.js` et `theory2.js`.
+- **Jeux** : défis dans la baie, 6 mini-jeux de réflexes (`views/reflexes.js`) et 5 quiz chronométrés (`views/quiz.js`) : quiz éclair, mots du marin, balisage, priorités, force du vent.
+- **Naviguer** : les missions. **Météo** : conditions et prévisions. **Profil** : grades, badges, sauvegarde.
+
 Code récupéré depuis la version en ligne https://voile.benhelli.org (le dépôt source d'origine avait été perdu). Les outils de build et les tests d'origine n'étaient pas publiés et manquent donc ici.
 
 ## Drapeau des conditions

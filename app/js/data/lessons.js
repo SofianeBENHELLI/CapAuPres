@@ -1,4 +1,5 @@
-// Parcours d'apprentissage : 7 leçons, chacune validée par un quiz.
+// Parcours d'apprentissage : 7 leçons de base, puis des leçons « pour aller plus loin » (extra: true),
+// chacune validée par un quiz.
 // q : question, c : choix (le premier est la bonne réponse, mélangé à l'affichage), e : explication.
 // visual : types de questions illustrées générées automatiquement (voir views/learn.js).
 
@@ -12,6 +13,10 @@ export const LESSONS = [
       { q: 'Pourquoi un voilier ne peut-il pas aller droit face au vent ?', c: ['Ses voiles faseyent : elles ne portent plus', 'Le safran se bloque', 'C’est interdit par le règlement', 'La dérive l’en empêche'], e: 'Face au vent, la voile bat comme un drapeau : le bateau s’arrête. C’est la zone interdite.' },
       { q: 'Pour rejoindre un point situé face au vent, on…', c: ['tire des bords de près en zigzag', 'va tout droit en bordant fort', 'passe vent arrière', 'attend que le vent tourne'], e: 'On zigzague au près, en virant de bord de temps en temps.' },
       { q: 'Plus on s’éloigne du vent (on abat : on tire la barre), plus on doit…', c: ['choquer les voiles', 'border les voiles', 'baisser la dérive', 'se mettre à l’avant'], e: 'Au près les voiles sont bordées, au vent arrière elles sont grandes ouvertes.' },
+      { q: 'Le vent arrive pile sur le côté du bateau, à 90°. C’est l’allure du…', c: ['travers', 'près', 'grand largue', 'vent arrière'], e: 'Au travers, le vent est perpendiculaire au bateau : une allure rapide et confortable.' },
+      { q: 'Entre le travers et le vent arrière, on navigue…', c: ['au largue, puis au grand largue', 'au près serré', 'vent debout', 'au bon plein'], e: 'Travers (90°), largue (vers 120°), grand largue (vers 150°), puis vent arrière (180°).' },
+      { q: '« Lofer », c’est tourner le bateau…', c: ['vers le vent', 'dos au vent', 'vers la plage', 'vers le large'], e: 'Lofer rapproche du lit du vent ; abattre en éloigne.' },
+      { q: 'Au vent arrière, le danger à surveiller est…', c: ['l’empannage involontaire : la bôme traverse d’un coup', 'le bateau qui s’arrête', 'la voile qui faseye', 'la dérive qui remonte toute seule'], e: 'Si le vent passe de l’autre côté de la voile, la bôme change de bord brutalement. On garde un œil sur la girouette.' },
     ],
   },
   {
@@ -26,7 +31,7 @@ export const LESSONS = [
       { q: 'Le safran, c’est…', c: ['la lame du gouvernail, orientée par la barre', 'l’aileron qu’on remonte au portant', 'le bord avant de la voile', 'le côté droit du bateau'], e: 'La dérive empêche de déraper ; le safran sert à diriger.' },
       { q: 'Quel nœud fait une boucle fixe qui ne glisse pas et ne serre pas ?', c: ['Le nœud de chaise', 'Le nœud de huit', 'Le nœud de taquet', 'Un nœud plat'], e: '« Le lapin sort du terrier, fait le tour de l’arbre et rentre dans le terrier. »' },
       { q: 'Au bout d’une écoute, pour qu’elle ne s’échappe pas de la poulie, on fait…', c: ['un nœud de huit', 'un nœud de chaise', 'un nœud de taquet', 'rien, la poulie la retient'], e: 'Le nœud de huit est le nœud d’arrêt : solide et facile à défaire.' },
-      { q: 'Quel bateau n’a pas de dérive mais une quille lestée ?', c: ['Le J80', 'L’Optimist', 'Le dériveur', 'Aucun'], e: 'La quille du J80 est fixe et lourde : elle touche le fond s’il n’y a pas assez d’eau. Le catamaran, lui, n’a ni dérive ni quille : ses coques l’empêchent de déraper.' },
+      { q: 'Quel bateau n’a pas de dérive mais une quille lestée ?', c: ['Le J80', 'L’Optimist', 'Le dériveur', 'Aucun'], e: 'La quille du J80 est fixe et lourde : elle touche le fond s’il n’y a pas assez d’eau. Le catamaran du club, lui, n’a ni dérive ni quille : la forme de ses coques l’empêche de déraper.' },
     ],
   },
   {
@@ -51,6 +56,9 @@ export const LESSONS = [
       { q: 'Le penon côté sous le vent s’agite et décroche. La voile est…', c: ['trop bordée : je choque (ou je lofe : je pousse la barre)', 'trop choquée : je borde', 'parfaitement réglée', 'trop bordée : j’abats (je tire la barre)'], e: 'L’air ne suit plus la voile côté sous le vent : il faut l’ouvrir.' },
       { q: 'Quelle est la règle d’or pour régler l’écoute ?', c: ['Choquer jusqu’au faseyement, puis border juste assez', 'Toujours border à fond', 'Toujours choquer à fond', 'Régler une fois pour toutes au départ'], e: 'On cherche la limite du faseyement : c’est là que la voile porte le mieux.' },
       { q: 'Des penons bien réglés…', c: ['filent tous les deux à l’horizontale', 'pointent vers le haut', 'tournent en rond', 's’enroulent autour de l’étai'], e: 'Quand l’air glisse bien des deux côtés, les deux penons filent droit.' },
+      { q: 'Le penon côté au vent décroche et remonte. La voile est…', c: ['trop choquée : je borde (ou j’abats un peu)', 'trop bordée : je choque', 'parfaitement réglée', 'déchirée'], e: 'Le penon au vent réagit le premier quand la voile manque d’angle : on borde un peu.' },
+      { q: 'Tu changes de cap pour abattre (t’éloigner du vent). Avec l’écoute, tu…', c: ['choques en même temps', 'bordes en même temps', 'ne touches à rien', 'la bloques dans le coinceur'], e: 'Chaque changement de cap demande un nouveau réglage : on abat, on choque ; on lofe, on borde.' },
+      { q: 'Une voile bordée à fond au vent de travers…', c: ['fait gîter et freine le bateau', 'fait avancer plus vite', 'ne change rien', 'empêche de chavirer'], e: 'Trop bordée, la voile décroche : beaucoup de gîte, peu de vitesse.' },
     ],
   },
   {
@@ -62,17 +70,20 @@ export const LESSONS = [
       { q: 'Par petit temps, on cherche une voile…', c: ['creuse, pour avoir de la puissance', 'très plate', 'à moitié affalée', 'bordée à bloc à toutes les allures'], e: 'Peu de vent : on relâche pour creuser la voile.' },
       { q: 'Sur un bateau à dérive, au près, la dérive est…', c: ['basse', 'haute', 'à moitié', 'enlevée'], e: 'Au près la dérive empêche le bateau de déraper.' },
       { q: 'Une rafale fait gîter le bateau au près. Le premier réflexe :', c: ['choquer la grand-voile', 'border davantage', 'lâcher la barre', 'se mettre sous le vent'], e: 'On choque pour vider la voile, puis on reborde quand la rafale passe.' },
+      { q: 'Au portant, sur un bateau à dérive, on peut…', c: ['relever en partie la dérive', 'la descendre à fond', 'l’enlever et la poser sur la plage', 'la mettre de travers'], e: 'Au portant le bateau dérape peu : moins de dérive, c’est moins de frein.' },
+      { q: 'Le hale-bas sert à…', c: ['retenir la bôme vers le bas pour garder la voile plate', 'hisser la grand-voile', 'relever la dérive', 'tenir le mât vers l’avant'], e: 'Sans hale-bas, la bôme monte au portant et la voile se vrille.' },
+      { q: 'Pour garder le bateau à plat quand le vent monte, l’équipage…', c: ['se met au rappel, côté au vent', 's’assoit sous le vent', 'se regroupe à l’avant', 's’allonge au fond du bateau'], e: 'Le poids de l’équipage au vent équilibre la poussée du vent dans les voiles.' },
     ],
   },
   {
     id: 'manoeuvres', num: 6, icon: '🔄', title: 'Virer et empanner',
-    summary: 'Virement de bord, empannage, lof pour lof : les annonces et les gestes.',
+    summary: 'Virement de bord, empannage, et virer au lieu d’empanner : les annonces et les gestes.',
     visual: ['manoeuvre', 'manoeuvre'],
     quiz: [
       { q: 'Un virement de bord, c’est changer d’amure en passant…', c: ['face au vent', 'vent arrière', 'vent de travers', 'au mouillage'], e: 'L’avant du bateau passe dans le lit du vent.' },
       { q: 'Que dit le barreur avant de virer ?', c: ['« Paré à virer ? »', 'Rien : il vire et l’équipier suit', '« Larguez tout ! »', '« Paré à empanner ? »'], e: 'Puis « On vire ! » quand l’équipage a répondu « Paré ! ».' },
       { q: 'Pendant un empannage, le principal danger est…', c: ['la bôme qui traverse brusquement', 'la dérive qui remonte', 'la voile qui se déchire', 'le bateau qui recule'], e: 'Tête baissée et bôme accompagnée !' },
-      { q: 'Un virement « lof pour lof », c’est…', c: ['remonter au vent (lofer : pousser la barre), virer, puis abattre (tirer la barre) au lieu d’empanner', 'empanner deux fois de suite', 'virer sans toucher la barre', 's’arrêter face au vent'], e: 'Plus long, mais plus sûr qu’un empannage par vent fort.' },
+      { q: 'Par vent fort, « virer au lieu d’empanner », c’est…', c: ['remonter au vent (lofer : pousser la barre), virer, puis abattre (tirer la barre) au lieu d’empanner', 'empanner deux fois de suite', 'virer sans toucher la barre', 's’arrêter face au vent'], e: 'Plus long, mais plus sûr qu’un empannage par vent fort. À savoir : « virer lof pour lof » est l’ancien nom de l’empannage.' },
       { q: 'Lofer, c’est…', c: ['se rapprocher du lit du vent (en poussant la barre)', 's’éloigner du vent (en tirant la barre)', 'border la voile au maximum', 'changer d’amure'], e: 'Lofer = remonter vers le vent en poussant la barre ; abattre = s’en éloigner en tirant la barre.' },
       { q: 'Pour abattre (s’éloigner du vent), le barreur…', c: ['tire la barre vers lui', 'pousse la barre vers la voile', 'borde la grand-voile', 'lâche la barre'], e: 'Tirer la barre = abattre ; pousser la barre (vers la voile) = lofer. Le bateau tourne du côté opposé à la barre.' },
     ],
@@ -92,6 +103,72 @@ export const LESSONS = [
       { q: 'En été, quel créneau est le plus souvent idéal pour débuter dans la baie ?', c: ['L’après-midi, vers 14–17 h', 'Tôt le matin, avant que le vent se lève', 'Vers midi pile', 'En soirée, après 19 h'], e: '12 ans de données : l’après-midi réunit 2,7 fois plus souvent un vent de mer modéré et régulier.' },
     ],
   },
+  {
+    id: 'depart', num: 8, icon: '🏖️', title: 'Partir de la plage et revenir', extra: true,
+    summary: 'Préparer son bateau, quitter le bord et y revenir en douceur, que le vent vienne de la mer ou de la terre.',
+    visual: [],
+    quiz: [
+      { q: 'Sur la plage, pour hisser la voile, on place le bateau…', c: ['le nez face au vent', 'dos au vent', 'travers au vent', 'peu importe, tant qu’il est au sec'], e: 'Face au vent, la voile faseye sans forcer : le bateau ne part pas tout seul et la bôme ne balaie pas la plage.' },
+      { q: 'Le vent souffle de la mer vers la plage. Pour quitter le bord, on part…', c: ['au près, en tirant des bords', 'vent arrière', 'tout droit face au vent', 'à la pagaie jusqu’au large'], e: 'Par vent de mer, le large est face au vent : on s’éloigne au près, sur le bord qui écarte le mieux de la plage.' },
+      { q: 'En revenant vers la plage, juste avant de toucher le fond, on…', c: ['relève la dérive et le safran', 'borde les voiles à fond', 'saute à l’eau en lâchant tout', 'accélère pour monter sur le sable'], e: 'Une dérive ou un safran qui talonne casse, ou arrête le bateau net. On les relève dès que l’eau devient peu profonde.' },
+      { q: 'Vent de mer : on revient vers la plage au portant. Le piège, c’est…', c: ['d’arriver trop vite', 'de ne plus avancer', 'de devoir tirer des bords', 'de perdre la dérive'], e: 'Poussé par le vent et les vagues, le bateau accélère. On choque en grand et on se met face au vent avant le bord pour s’arrêter.' },
+      { q: 'Un voilier n’a pas de frein. Pour s’arrêter, on…', c: ['lofe jusqu’à être face au vent, voiles choquées', 'borde les voiles à fond', 'abat jusqu’au vent arrière', 'jette la dérive à l’eau'], e: 'Face au vent, les voiles ne portent plus : le bateau s’arrête en quelques longueurs.' },
+      { q: 'En arrivant au bord, on descend du bateau…', c: ['du côté au vent', 'du côté sous le vent', 'par l’avant', 'en sautant par-dessus la bôme'], e: 'Du côté au vent, le bateau est poussé loin de toi. Sous le vent, il te passerait dessus avec les vagues.' },
+      { q: 'Le matin, vent de terre : la mer est plate au bord et on part très facilement. Pour rentrer, il faudra…', c: ['remonter au près en tirant des bords', 'se laisser porter par le vent', 'attendre la marée', 'rentrer vent arrière'], e: 'Avec le vent de terre, le retour se fait face au vent. Dans la baie, il se fait en eau abritée : on garde juste un peu de temps pour les bords.' },
+      { q: 'Pour traverser la bande des 300 m devant la plage, on…', c: ['passe par le chenal, à moins de 5 nœuds, en surveillant les baigneurs', 'file le plus vite possible pour la quitter', 'longe la plage au plus près', 'navigue dans la zone de baignade si elle est vide'], e: 'Le chenal est fait pour ça. Les zones de baignade (bouées jaunes) sont interdites aux bateaux.' },
+    ],
+  },
+  {
+    id: 'securite', num: 9, icon: '🛟', title: 'Dessaler et se redresser', extra: true,
+    summary: 'Chavirer fait partie de l’apprentissage : redresser son bateau, aider un équipier tombé à l’eau, demander de l’aide.',
+    visual: [],
+    quiz: [
+      { q: 'Ton bateau a chaviré. La première règle :', c: ['rester avec le bateau', 'nager vers la plage', 'enlever son gilet pour nager plus vite', 'plonger récupérer ce qui coule'], e: 'Le bateau flotte et se voit de loin. Un nageur seul est presque invisible et se fatigue vite.' },
+      { q: 'Avant de redresser un dériveur chaviré, on…', c: ['choque les écoutes', 'borde la grand-voile', 'démonte le safran', 'remonte la dérive'], e: 'Voiles bordées, le bateau repartirait tout seul ou rechavirerait aussitôt redressé.' },
+      { q: 'Pour redresser un dériveur couché sur l’eau, on fait levier…', c: ['en pesant sur la dérive', 'en tirant le mât vers le haut à la nage', 'en poussant la coque par en dessous', 'en se hissant sur la bôme'], e: 'Debout ou allongé sur la dérive, en se penchant en arrière : le poids fait tourner le bateau.' },
+      { q: 'Un équipier tombe à l’eau. Le tout premier réflexe :', c: ['crier « Un homme à la mer ! » et ne pas le quitter des yeux', 'empanner immédiatement', 'affaler toutes les voiles', 'sauter à l’eau pour l’aider'], e: 'Quelqu’un le montre du doigt sans le lâcher du regard, pendant que le barreur revient s’arrêter à côté de lui.' },
+      { q: 'Pour demander de l’aide de loin, sans radio, on…', c: ['lève et baisse lentement les deux bras tendus', 'lève un pouce', 'agite une seule main', 'se couche dans le bateau'], e: 'C’est le signal de détresse international. Un seul bras levé veut plutôt dire « tout va bien ».' },
+      { q: 'Le numéro d’urgence en mer depuis un téléphone est…', c: ['le 196 (CROSS)', 'le 118', 'le 3615', 'le 911'], e: 'Le 196 joint directement le centre de sauvetage en mer. À la VHF, c’est le canal 16.' },
+      { q: 'Le gilet de sauvetage se porte…', c: ['fermé et ajusté, dès qu’on est sur l’eau', 'seulement par vent fort', 'ouvert, pour être à l’aise', 'rangé sous le banc, à portée de main'], e: 'Un gilet ouvert glisse par-dessus la tête dès qu’on tombe à l’eau.' },
+      { q: 'Le moniteur te remorque. Dans ton bateau, tu…', c: ['relèves un peu la dérive et tu barres dans le sillage', 'bordes la voile pour l’aider', 'te mets debout à l’avant', 'lâches la barre'], e: 'Voile affalée ou choquée, on s’assoit à l’arrière et on suit bien droit le bateau qui tire.' },
+      { q: 'Un catamaran chaviré se redresse…', c: ['avec le bout de redressement, debout sur la coque du bas', 'en montant sur la dérive, comme un dériveur', 'tout seul, en attendant', 'en démontant le mât'], e: 'L’équipage se penche en arrière au bout de redressement, étraves tournées vers le vent, puis s’accroche à la poutre quand la coque retombe.' },
+    ],
+  },
+  {
+    id: 'meteo', num: 10, icon: '🌦️', title: 'Le vent, la météo et la marée', extra: true,
+    summary: 'L’échelle de Beaufort, lire un bulletin, reconnaître une risée ou un grain, et comprendre la marée.',
+    visual: [],
+    quiz: [
+      { q: 'Un vent « d’ouest », c’est un vent qui…', c: ['vient de l’ouest', 'va vers l’ouest', 'souffle seulement le soir', 'tourne vers l’ouest'], e: 'On nomme toujours le vent par la direction d’où il vient.' },
+      { q: 'Force 4 sur l’échelle de Beaufort, c’est environ…', c: ['11 à 16 nœuds', '1 à 3 nœuds', '22 à 27 nœuds', '34 à 40 nœuds'], e: 'Force 4, « jolie brise » : des moutons nombreux, le bateau avance bien.' },
+      { q: 'Un nœud, c’est…', c: ['un mille marin à l’heure, soit 1,852 km/h', 'un kilomètre à l’heure', 'dix mètres par seconde', 'la longueur d’un bateau par seconde'], e: '10 nœuds font à peu près 18,5 km/h.' },
+      { q: 'Une tache plus sombre et ridée avance vers toi sur l’eau. C’est…', c: ['une risée : le vent va forcir', 'un banc de poissons', 'un haut-fond', 'une zone sans vent'], e: 'On prépare l’écoute et son poids avant qu’elle arrive.' },
+      { q: 'Le bulletin annonce « 10 nœuds, rafales à 20 ». On se prépare pour…', c: ['20 nœuds', '10 nœuds', '15 nœuds, la moyenne', '30 nœuds'], e: 'C’est la rafale qui fait dessaler, pas le vent moyen.' },
+      { q: 'Entre une pleine mer et la basse mer suivante, il s’écoule environ…', c: ['6 heures', '1 heure', '12 heures', '24 heures'], e: 'Deux pleines mers et deux basses mers par jour, décalées d’environ 50 minutes d’un jour à l’autre.' },
+      { q: 'D’après la règle des douzièmes, la mer monte le plus vite…', c: ['à mi-marée, les 3e et 4e heures', 'la première heure', 'la dernière heure', 'toujours à la même vitesse'], e: '1, 2, 3, 3, 2, 1 douzièmes : la moitié de la hauteur se fait en deux heures, au milieu. Le courant est alors le plus fort.' },
+      { q: 'Un coefficient de marée de 100, c’est…', c: ['une grande marée : la mer monte haut et descend bas', 'une petite marée', 'une marée sans courant', 'une marée qui dure deux fois plus longtemps'], e: 'À grand coefficient, les cailloux de la baie découvrent davantage à basse mer et les courants sont plus forts.' },
+      { q: 'Un gros nuage très sombre, haut comme une tour, s’approche. On…', c: ['rentre : il peut apporter orage et rafales violentes', 'continue, il apporte du beau temps', 'se rapproche pour avoir plus de vent', 'attend dessous que ça passe'], e: 'C’est un cumulonimbus. Sous un grain, le vent peut doubler et tourner en quelques minutes.' },
+    ],
+  },
+  {
+    id: 'regate', num: 11, icon: '🏁', title: 'La régate', extra: true,
+    summary: 'Le parcours, la procédure de départ, les pavillons et les pénalités : tout pour prendre son premier départ.',
+    visual: [],
+    quiz: [
+      { q: 'La ligne de départ se trouve entre…', c: ['le mât du bateau comité et la bouée de départ', 'la bouée au vent et la bouée sous le vent', 'la plage et le bateau comité', 'deux bateaux de concurrents'], e: 'Le mât du bateau comité porte un pavillon orange : c’est lui qui marque l’extrémité de la ligne.' },
+      { q: 'Cinq minutes avant le départ, le comité…', c: ['hisse le pavillon de la classe, avec un signal sonore', 'affale tous ses pavillons', 'hisse le pavillon P', 'tire deux coups de canon'], e: 'C’est le signal d’avertissement : on déclenche son chrono.' },
+      { q: 'Le pavillon P, bleu avec un rectangle blanc, est hissé…', c: ['4 minutes avant le départ', '5 minutes avant le départ', '1 minute avant le départ', 'à l’arrivée du premier'], e: 'C’est le signal préparatoire : à partir de là, les règles de course s’appliquent.' },
+      { q: 'À une minute du départ…', c: ['le pavillon P est affalé, avec un long signal sonore', 'le pavillon de la classe est affalé', 'un deuxième pavillon est hissé', 'il ne se passe rien'], e: 'Dernière minute : on se place et on lance son bateau vers la ligne.' },
+      { q: 'Tu as franchi la ligne avant le signal (pavillon X et un signal sonore). Tu…', c: ['reviens entièrement derrière la ligne, puis tu repars', 'continues, avec une minute de pénalité', 'fais un tour sur toi-même', 'abandonnes la course'], e: 'Le pavillon X est le rappel individuel. Pendant que tu reviens, tu n’as aucune priorité sur les autres.' },
+      { q: 'Tu touches une bouée du parcours. Tu fais…', c: ['un tour de pénalité : un virement et un empannage', 'deux tours de pénalité', 'demi-tour jusqu’au départ', 'rien, ce n’est pas grave'], e: 'On s’écarte des autres bateaux, puis on fait son tour le plus vite possible.' },
+      { q: 'Tu as gêné un bateau prioritaire. Pour te racheter, tu fais…', c: ['deux tours de pénalité', 'un seul tour de pénalité', 'un signe de la main', 'un nouveau départ'], e: 'Deux tours, soit deux virements et deux empannages, dès que possible après l’incident.' },
+      { q: 'Un parcours « banane », c’est…', c: ['des allers-retours entre une bouée au vent et une bouée sous le vent', 'un triangle avec trois bouées', 'un tour complet de la baie', 'une ligne droite jusqu’à l’arrivée'], e: 'On monte au près jusqu’à la bouée au vent, puis on redescend au portant.' },
+      { q: 'Au près, le vent tourne et t’oblige à abattre pour garder tes voiles pleines. C’est…', c: ['une refusante : souvent le bon moment pour virer', 'une adonnante : on continue sans rien changer', 'le signe qu’il faut choquer', 'une erreur de barre'], e: 'En virant sur une refusante, l’autre bord devient plus direct vers la bouée au vent.' },
+    ],
+  },
 ];
 
 export const lessonById = (id) => LESSONS.find((l) => l.id === id);
+
+// Les leçons de base : celles qui comptent pour l'épreuve de Skipper et le badge « Tête bien faite ».
+export const CORE_LESSONS = LESSONS.filter((l) => !l.extra);

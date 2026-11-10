@@ -129,6 +129,11 @@ export function windMapNode() {
     b.setAttribute('aria-pressed', on);
     node.classList.toggle(`hide-${b.dataset.layer}`, !on);
   };
+  node.destroy = () => {
+    document.removeEventListener('keydown', onKey);
+    window.removeEventListener('popstate', onPop);
+    document.body.classList.remove('wm-max-open');
+  };
   return node;
 }
 

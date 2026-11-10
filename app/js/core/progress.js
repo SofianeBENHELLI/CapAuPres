@@ -2,7 +2,7 @@
 // enregistrée : impossible de « perdre » ou de gonfler des points par erreur.
 import { store, starsFor } from '../store.js';
 import { LEVELS, dailySeed } from './levels.js';
-import { LESSONS } from '../data/lessons.js';
+import { LESSONS, CORE_LESSONS } from '../data/lessons.js';
 import { BOAT_LIST } from './boats.js';
 
 export const XP = {
@@ -61,7 +61,7 @@ const missionTitle = (id) => LEVELS.find((l) => l.id === id)?.title || id;
 // Épreuves de passage : une liste de conditions, chacune avec un lien pour aller la remplir.
 export function examChecks(exam) {
   const m = missionResults();
-  const lessonsDone = LESSONS.filter((l) => store.lesson(l.id)?.done).length;
+  const lessonsDone = CORE_LESSONS.filter((l) => store.lesson(l.id)?.done).length;
   const threeStars = new Set(m.filter((r) => r.stars === 3).map((r) => r.id)).size;
   const reflexBest = Math.max(0, ...Object.values(store.allReflexes()));
   const daily = Object.keys(store.allDaily()).length;
@@ -72,7 +72,7 @@ export function examChecks(exam) {
   });
   const list = {
     skipper: [
-      { label: `Toutes les leçons validées (${lessonsDone}/${LESSONS.length})`, ok: lessonsDone === LESSONS.length, href: '#/apprendre' },
+      { label: `Les ${CORE_LESSONS.length} leçons de base validées (${lessonsDone}/${CORE_LESSONS.length})`, ok: lessonsDone === CORE_LESSONS.length, href: '#/apprendre' },
       mission('m7', 2),
       mission('m9', 2),
     ],
@@ -118,7 +118,7 @@ export function nextSteps(max = 3) {
   if (!store.daily(dailySeed())) steps.push({ icon: '📅', label: 'Défi du jour', xp: XP.daily, href: '#/defi/2/today' });
   const reflexes = store.allReflexes();
   if (Object.values(reflexes).reduce((s, b) => s + Math.min(100, Math.floor(b / 3)), 0) < 600) {
-    steps.push({ icon: '⚡', label: 'Mini-jeu de réflexes', xp: 100, upTo: true, href: '#/reflexes' });
+    steps.push({ icon: '⚡', label: 'Mini-jeu ou quiz', xp: 100, upTo: true, href: '#/jeux' });
   }
   return steps.sort((a, b) => b.xp - a.xp).slice(0, max);
 }
@@ -128,7 +128,8 @@ export const BADGES = [
   { id: 'premier-bord', icon: '⛵', name: 'Premier bord', how: 'Termine ta première mission.' },
   { id: 'sans-faute', icon: '⭐', name: 'Sans faute', how: 'Obtiens 3 étoiles sur une mission.' },
   { id: 'etoile-filante', icon: '🌟', name: 'Étoile filante', how: '3 étoiles sur 5 missions.' },
-  { id: 'tete-bien-faite', icon: '🎓', name: 'Tête bien faite', how: 'Valide toutes les leçons.' },
+  { id: 'tete-bien-faite', icon: '🎓', name: 'Tête bien faite', how: `Valide les ${CORE_LESSONS.length} leçons de base.` },
+  { id: 'major', icon: '🧑‍🎓', name: 'Major de promo', how: 'Valide toutes les leçons, y compris « pour aller plus loin ».' },
   { id: 'evens', icon: '🪨', name: 'Cap sur Les Évens', how: 'Contourne l’îlot des Évens (mission « Cap sur Les Évens »).' },
   { id: 'noroit', icon: '💨', name: 'Pas peur du noroît', how: 'Termine la mission « Coup de noroît ».' },
   { id: 'tour-baie', icon: '🗺️', name: 'Tour de la baie', how: 'Termine « Le tour de la baie ».' },
@@ -137,6 +138,9 @@ export const BADGES = [
   { id: 'flotte', icon: '🚩', name: 'Toute la flotte', how: 'Termine une mission avec les 4 bateaux.' },
   { id: 'matelot', icon: '🪢', name: 'Bon matelot', how: 'Sache faire les trois nœuds (huit, chaise, taquet).' },
   { id: 'reflexes', icon: '⚡', name: 'Réflexes de skipper', how: 'Marque 150 points dans un mini-jeu.' },
+  { id: 'vigie', icon: '🔭', name: 'Œil de vigie', how: 'Marque 120 points au quiz « Balisage express ».' },
+  { id: 'arbitre', icon: '⚖️', name: 'Arbitre de régate', how: 'Marque 120 points au quiz « Qui est prioritaire ? ».' },
+  { id: 'dico', icon: '📖', name: 'Dico du marin', how: 'Marque 120 points au quiz « Les mots du marin ».' },
   { id: 'fidele', icon: '📅', name: 'Fidèle au poste', how: 'Réussis 3 défis du jour.' },
   { id: 'amiral', icon: '👑', name: 'Amiral', how: 'Atteins le grade d’Amiral du CNBPP.' },
 ];
@@ -154,7 +158,12 @@ export function earnedBadges() {
   if (m.length >= 1) set.add('premier-bord');
   if (m.some((r) => r.stars === 3)) set.add('sans-faute');
   if (m.filter((r) => r.stars === 3).length >= 5) set.add('etoile-filante');
-  if (doneLessons === LESSONS.length) set.add('tete-bien-faite');
+  if (CORE_LESSONS.every((l) => lessons[l.id]?.done)) set.add('tete-bien-faite');
+  if (doneLessons === LESSONS.length) set.add('major');
+  const rx = store.allReflexes();
+  if ((rx.balise || 0) >= 120) set.add('vigie');
+  if ((rx.priorite || 0) >= 120) set.add('arbitre');
+  if ((rx.mots || 0) >= 120) set.add('dico');
   if (has('m4')) set.add('evens');
   if (has('m7')) set.add('noroit');
   if (has('m9')) set.add('tour-baie');

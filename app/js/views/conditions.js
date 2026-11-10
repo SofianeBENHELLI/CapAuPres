@@ -187,6 +187,7 @@ export function render(root) {
   const box = root.firstElementChild;
   let alive = true;
   let offset = 0;
+  let wmap = null;
   const load = async (force) => {
     const data = await loadConditions({ force });
     if (!alive) return;
@@ -230,7 +231,8 @@ export function render(root) {
           <p class="muted small-print">Données <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (CC BY 4.0) · Webcam © Skaping.</p>
         </details>
       </div>`;
-    const wmap = windMapNode();
+    wmap?.destroy();
+    wmap = windMapNode();
     box.querySelector('#wmslot').replaceWith(wmap);
     const show = (o) => {
       offset = o;
@@ -287,5 +289,6 @@ export function render(root) {
   load(false);
   return () => {
     alive = false;
+    wmap?.destroy();
   };
 }

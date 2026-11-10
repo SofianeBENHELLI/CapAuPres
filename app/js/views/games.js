@@ -1,6 +1,7 @@
 // « Jeux » : tout ce qui est ludique, chronométré ou noté, à part des leçons de l'école.
 // Réflexes (mini-jeux), atelier réglages, défi du jour et défis aléatoires dans la baie.
 import { MODES } from './reflexes.js';
+import { QUIZ_MODES } from './quiz.js';
 import { dailySeed } from '../core/levels.js';
 import { getBoat } from '../core/boats.js';
 import { store } from '../store.js';
@@ -35,6 +36,15 @@ export function render(root) {
     <p class="muted" style="margin-top:-6px">Mini-jeux express : enchaîne les bonnes réponses pour faire monter le combo.</p>
     <div class="games-grid">
       ${MODES.map((m) => `<a class="card game-card" href="#/reflexes/${m.id}">
+        <span class="temoji">${m.emoji}</span><b>${m.title}</b><span class="muted">${m.text}</span>
+        ${best(m.id) ? `<span class="pill">🏆 Record : ${best(m.id)} pts</span>` : '<span class="pill ghost">Pas encore joué</span>'}
+      </a>`).join('')}
+    </div>
+
+    <h2 class="block-title">🧠 Quiz</h2>
+    <p class="muted" style="margin-top:-6px">Une minute pour montrer ce que tu sais : balises, priorités, vocabulaire, force du vent.</p>
+    <div class="games-grid">
+      ${QUIZ_MODES.map((m) => `<a class="card game-card" href="#/quiz/${m.id}">
         <span class="temoji">${m.emoji}</span><b>${m.title}</b><span class="muted">${m.text}</span>
         ${best(m.id) ? `<span class="pill">🏆 Record : ${best(m.id)} pts</span>` : '<span class="pill ghost">Pas encore joué</span>'}
       </a>`).join('')}

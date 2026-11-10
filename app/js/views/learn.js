@@ -1,6 +1,7 @@
 // « Apprendre » : parcours de 7 leçons. Chaque leçon = contenu interactif + quiz de validation.
-import { LESSONS, lessonById } from '../data/lessons.js';
+import { LESSONS, CORE_LESSONS, lessonById } from '../data/lessons.js';
 import { LESSON_VIEWS } from './theory.js';
+import { MORE_LESSON_VIEWS } from './theory2.js';
 import { matelotage, TABS as MATELOT_TABS } from './matelotage.js';
 import { GEN } from './reflexes.js';
 import { boatSVG, windArrowSVG } from '../ui/boat.js';
@@ -30,7 +31,7 @@ function renderPath(root) {
   const current = LESSONS.find((l) => !store.lesson(l.id)?.done);
   root.innerHTML = `
     <div class="section-title"><h1>École</h1><span class="pill">🎓 ${done} / ${LESSONS.length} leçons</span></div>
-    <p class="muted" style="margin-top:-6px">Sept leçons pour comprendre le vent, ton bateau, ses nœuds et la baie. Chaque leçon se valide par un petit quiz (${PASS} % de bonnes réponses) et rapporte <b>${XP.lesson} XP</b>, +${XP.perfectQuiz} XP pour un sans-faute.</p>
+    <p class="muted" style="margin-top:-6px">${CORE_LESSONS.length} leçons de base pour comprendre le vent, ton bateau, ses nœuds et la baie, puis ${LESSONS.length - CORE_LESSONS.length} leçons pour aller plus loin. Chaque leçon se valide par un petit quiz (${PASS} % de bonnes réponses) et rapporte <b>${XP.lesson} XP</b>, +${XP.perfectQuiz} XP pour un sans-faute.</p>
     ${dueItems(store.srs).length ? `<a class="card review-banner" href="#/apprendre/revision"><span>🔁</span><div><b>Révisions du jour : ${dueItems(store.srs).length} question${dueItems(store.srs).length > 1 ? 's' : ''}</b><span class="muted">Les questions ratées reviennent jusqu’à ce qu’elles soient acquises.</span></div><span class="btn primary small">Réviser</span></a>` : ''}
     <div class="learn-layout">
       <ol class="lesson-path">
@@ -41,7 +42,7 @@ function renderPath(root) {
             <a href="#/apprendre/${l.id}">
               <span class="lp-dot">${rec?.done ? '✓' : l.icon}</span>
               <span class="lp-card">
-                <small>Leçon ${l.num}${rec?.done ? ` · quiz ${rec.best} %` : ''}</small>
+                <small>${l.extra ? 'Pour aller plus loin · ' : ''}Leçon ${l.num}${rec?.done ? ` · quiz ${rec.best} %` : ''}</small>
                 <b>${l.title}</b>
                 <span class="muted">${l.summary}</span>
                 ${state === 'current' ? '<span class="btn primary small">Commencer →</span>' : ''}
@@ -64,7 +65,14 @@ function renderPath(root) {
 
 // ---------------------------------------------------------------- Révisions espacées
 function renderReview(root) {
-  const ids = dueItems(store.srs).slice(0, 8);
+  const all = dueItems(store.srs);
+  const dead = all.filter((id) => !questionOf(id));
+  if (dead.length) {
+    const s = { ...store.srs };
+    dead.forEach((id) => delete s[id]);
+    store.setSrs(s);
+  }
+  const ids = all.filter((id) => !dead.includes(id)).slice(0, 8);
   if (!ids.length) {
     root.innerHTML = `<div class="quiz-card card quiz-result"><div class="big-score">✓</div><h2>Rien à revoir aujourd’hui</h2>
       <p class="muted">Les questions que tu rates reviennent automatiquement dans tes révisions : le jour même, puis après 1, 3, 7 et 14 jours si tu réponds juste.</p>
@@ -108,7 +116,7 @@ function renderLesson(root, lesson, tab) {
     if (cleanup) cleanup();
     body.innerHTML = '';
     if (lesson.id === 'matelotage') cleanup = matelotage(body, id) || null;
-    else cleanup = id === 'baie' ? baieLesson(body) : LESSON_VIEWS[id](body) || null;
+    else cleanup = id === 'baie' ? baieLesson(body) : ({ ...LESSON_VIEWS, ...MORE_LESSON_VIEWS }[id] || (() => null))(body) || null;
   };
   show(lesson.id === 'matelotage' ? tab || 'bateau' : lesson.id === 'reglages' && tab === 'atelier' ? 'atelier' : lesson.id);
   root.querySelector('#subtabs')?.addEventListener('click', (e) => {

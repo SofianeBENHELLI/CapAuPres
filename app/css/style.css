@@ -1418,3 +1418,60 @@ html, body { overflow-x: clip; }
   main { padding-bottom: 16px; }
   .site-foot { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 16px); }
 }
+
+/* ---- Leçons « pour aller plus loin » : figures ---- */
+.lesson-fig { display: block; width: 100%; height: auto; border-radius: 14px; }
+.fig-label { fill: #fff; font-size: 12px; font-weight: 800; letter-spacing: 0.4px; }
+.fig-label.dark { fill: #243150; }
+.fig-path { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.fig-path.out { stroke: #ffd166; stroke-dasharray: 2 9; }
+.fig-path.back { stroke: #fff; stroke-dasharray: 10 7; opacity: 0.9; }
+.fig-key rect { fill: rgba(36, 49, 80, 0.75); }
+.fig-key text { fill: #fff; font-size: 11px; font-weight: 700; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.two-col h4 { margin: 0 0 8px; }
+.step.cur > div { font-weight: 600; }
+.rt-mast { stroke: #243150; stroke-width: 4; stroke-linecap: round; }
+.rt-sail { fill: #fff; stroke: #243150; stroke-width: 1.5; opacity: 0.92; }
+.rt-hull { fill: #fff; stroke: #243150; stroke-width: 2.5; }
+.rt-beam { stroke: #243150; stroke-width: 3; }
+.rt-fin { stroke: #243150; stroke-width: 5; stroke-linecap: round; }
+.rt-bulb { fill: #243150; }
+.rt-crew circle { fill: #ff8a3d; stroke: #243150; stroke-width: 1.5; }
+.rt-crew line { stroke: #ff8a3d; stroke-width: 6; stroke-linecap: round; }
+.range-field { display: grid; gap: 4px; font-weight: 800; color: var(--sky-2); margin: 8px 0; }
+.range-field input { width: 100%; accent-color: var(--sky-2); }
+.bf-head { display: flex; align-items: center; gap: 12px; margin: 6px 0 10px; }
+.bf-head div { display: grid; }
+.bf-head b { font-size: 1.15rem; }
+.bf-num { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; color: #fff; font-size: 1.5rem; font-weight: 900; }
+.bf-sea { margin-bottom: 8px; }
+.td-bars { display: flex; align-items: flex-end; gap: 6px; height: 112px; margin: 8px 0; }
+.td-bar { flex: 1; display: grid; justify-items: center; gap: 2px; font-size: 12px; color: var(--muted); }
+.td-bar i { display: block; width: 100%; border-radius: 6px 6px 0 0; background: var(--line); transition: background 0.2s; }
+.td-bar.on i { background: var(--sky); }
+.td-bar.cur i { background: var(--sky-2); }
+.td-bar b { font-size: 12px; color: var(--ink); }
+.rg-flag { animation: pop 0.3s ease; }
+@media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+
+/* ---- Quiz chronométrés ---- */
+.quiz-stage #stage { height: min(62vh, 560px); display: grid; place-items: center; padding: 48px 18px 18px; color: #fff; text-align: center; }
+.quiz-stage #stage > svg { height: 100%; }
+.qz-card { display: grid; justify-items: center; gap: 12px; max-width: 520px; }
+.qz-card small { font-weight: 700; opacity: 0.85; letter-spacing: 0.3px; }
+.qz-emoji { font-size: 84px; line-height: 1; }
+.qz-gear { background: #fff; border-radius: 22px; padding: 10px; display: grid; }
+.quiz-stage .qz-gear svg { width: 84px; height: 84px; }
+.qz-def { margin: 0; font-size: clamp(1.1rem, 2.6vw, 1.5rem); font-weight: 700; line-height: 1.4; }
+.qz-mark { width: min(70%, 300px); background: rgba(255, 255, 255, 0.92); border-radius: 28px; padding: 18px; }
+.quiz-stage .qz-mark svg { width: 100%; height: auto; }
+.qz-sea { position: absolute; inset: 0; }
+.quiz-stage .qz-sea svg { width: 100%; height: 100%; }
+.qz-over { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: rgba(36, 49, 80, 0.78); padding: 12px 20px; border-radius: 16px; max-width: 80%; font-size: clamp(1.1rem, 2.6vw, 1.5rem); font-weight: 700; }
+.qz-over b { font-size: 1.4em; }
+.reflex-question.small { font-size: 18px; line-height: 1.35; }
+.answers.one-col { grid-template-columns: 1fr; }
+.answers.one-col .btn { text-align: left; justify-content: flex-start; min-height: 48px; font-size: 15px; line-height: 1.3; padding: 10px 14px; height: auto; white-space: normal; }
+.met-more-txt .review-list { padding-left: 18px; list-style: disc; gap: 8px; font-size: 0.9rem; margin-top: 8px; }
+@media (max-width: 900px) { .quiz-stage #stage { height: 40vh; padding-top: 44px; } .qz-emoji { font-size: 60px; } }

@@ -4,6 +4,7 @@
 // les autres sont rangés sous PROFILE_PREFIX + id. Une sauvegarde en fichier permet de
 // reprendre sa progression sur un autre appareil.
 import { boatId } from './core/boats.js';
+import { mergeProfiles } from './core/merge.js';
 
 const KEY = 'capaupres.v1';
 const PROFILE_PREFIX = 'capaupres.profile.';
@@ -58,7 +59,13 @@ function activate(next) {
     /* stockage indisponible */
   }
   data = next;
-  save();
+  // on enregistre sans toucher à `updated` : reprendre un vieux profil ne le rend pas « plus récent »
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  } catch {
+    /* stockage indisponible */
+  }
+  if (onSave) queueMicrotask(onSave);
 }
 
 const summary = (d, current) => ({
@@ -231,7 +238,7 @@ export const store = {
   },
   reset() {
     const { boat, name, pid, birth, cloud } = data;
-    data = { boat, name, pid, birth, cloud };
+    data = { boat, name, pid, birth, cloud, resetAt: Date.now() };
     save();
   },
   // ---- profils de l'appareil
@@ -283,7 +290,9 @@ export const store = {
     }
     if (!obj || obj.app !== BACKUP_APP || !obj.profile || typeof obj.profile !== 'object') throw new Error('Ce fichier n’est pas une sauvegarde Cap au Près.');
     if (obj.version > 1) throw new Error('Cette sauvegarde vient d’une version plus récente : mets l’appli à jour.');
-    return { ...obj.profile, pid: obj.profile.pid || newId() };
+    const pid = /^[a-z0-9]{1,16}$/.test(obj.profile.pid || '') ? obj.profile.pid : newId();
+    // mêmes garde-fous que pour un profil venu du serveur : rien d'exécutable dans la progression
+    return { ...mergeProfiles({}, obj.profile), pid, birth: /^\d{4}-\d{2}-\d{2}$/.test(obj.profile.birth || '') ? obj.profile.birth : '' };
   },
   // Reprend un profil sauvegardé et l'active : il remplace sa version sur l'appareil s'il y est déjà.
   importProfile(profile) {

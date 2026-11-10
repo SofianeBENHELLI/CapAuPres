@@ -27,7 +27,7 @@ export const TERMS = [
 
   // ---- Le gréement
   { id: 'mat', term: 'Mât', cat: 'greement', def: 'Le grand poteau vertical qui porte les voiles.', note: { catamaran: 'Le mât du Hobie 16 tourne sur lui-même pour mieux profiler la voile.', optimist: 'Le mât de l’Optimist tient tout seul, sans câbles.' } },
-  { id: 'bome', term: 'Bôme', cat: 'greement', boats: ['deriveur', 'optimist', 'j80'], def: 'Le bras horizontal fixé au mât, qui tient le bas de la grand-voile. Attention à la tête quand elle passe d’un bord à l’autre ! (Le catamaran Hobie 16 n’en a pas : sa grand-voile est tenue par l’écoute, directement au point d’écoute.)' },
+  { id: 'bome', term: 'Bôme', cat: 'greement', boats: ['deriveur', 'optimist', 'j80'], def: 'Le bras horizontal fixé au mât, qui tient le bas de la grand-voile. Attention à la tête quand elle passe d’un bord à l’autre ! (Certains catamarans d’école n’en ont pas : leur grand-voile est tenue par l’écoute, directement au point d’écoute.)' },
   { id: 'livarde', term: 'Livarde', cat: 'greement', def: 'Perche en diagonale qui tend le coin haut de la voile de l’Optimist.', boats: ['optimist'] },
   { id: 'etai', term: 'Étai', cat: 'greement', def: 'Câble qui tient le mât vers l’avant. Le foc y est accroché.', boats: ['deriveur', 'catamaran', 'j80'] },
   { id: 'haubans', term: 'Haubans', cat: 'greement', def: 'Câbles qui tiennent le mât sur les côtés.', boats: ['deriveur', 'catamaran', 'j80'] },

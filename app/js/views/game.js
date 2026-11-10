@@ -433,7 +433,7 @@ function playLevelScreen(root, opts) {
       if (t.label) html += `<div>↪ <b>${t.label}</b> <span class="muted">(${Math.round(t.deg)}°, ≈ ${Math.round(t.cost)} s)</span></div>`;
       else html += `<div class="muted">Simple changement de cap (≈ ${Math.round(t.cost)} s)</div>`;
       if (t.label || t.other.label) {
-        const otherName = t.other.tacks && t.other.gybes ? 'un tour complet' : t.other.tacks ? (t.gybes ? 'un virement lof pour lof' : 'un virement') : t.other.gybes ? 'un empannage' : 'un simple virage';
+        const otherName = t.other.tacks && t.other.gybes ? 'un tour complet' : t.other.tacks ? (t.gybes ? 'un virement à la place de l’empannage' : 'un virement') : t.other.gybes ? 'un empannage' : 'un simple virage';
         if (t.label !== t.other.label) html += `<button class="btn small sea" data-act="alt">Faire plutôt ${otherName} (≈ ${Math.round(t.other.cost)} s)</button>`;
       }
     }
@@ -874,7 +874,7 @@ export function analyze(level, sim, opt, pt, ot) {
   // virement lof pour lof
   const optLof = opt.turns.some((t) => t.mode === 'alt' && t.tacks);
   const myGybes = sim.turns.some((t) => t.gybes && t.mode !== 'alt');
-  if (optLof && myGybes && wid === 'strong') tips.push('🌊 Par vent fort, la route optimale préfère un <b>virement lof pour lof</b> à l’empannage. Touche le point de manœuvre pour changer de sens.');
+  if (optLof && myGybes && wid === 'strong') tips.push('🌊 Par vent fort, la route optimale préfère <b>virer de bord au lieu d’empanner</b>. Touche le point de manœuvre pour changer de sens.');
 
   const lenP = sim.path.reduce((s, p, i, a) => (i ? s + dist(a[i - 1], p) : 0), 0);
   const lenO = opt.path.reduce((s, p, i, a) => (i ? s + dist(a[i - 1], p) : 0), 0);

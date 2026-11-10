@@ -3,6 +3,7 @@
 // (meilleur score de chaque côté) : plusieurs appareils peuvent jouer sans s'écraser.
 import { store } from '../store.js';
 import { cloudKey, cloudPayload, mergeProfiles } from './merge.js';
+import { setBoat, getBoat } from './boats.js';
 
 const API = 'api/profil/';
 let timer = null;
@@ -43,7 +44,23 @@ export async function push() {
   }
   const k = await key().catch(() => null);
   if (!k) return set('off');
+  // Le pseudo ou la date ont changé : si ce nouveau couple appartient déjà à quelqu'un, on n'y
+  // déverse pas la progression de ce profil (sur un appareil partagé, il faut « Nouveau marin »).
   busy = true;
+  const prev = store.cloud?.key;
+  if (prev && prev !== k) {
+    let taken = null;
+    try {
+      taken = await request(k, 'GET');
+    } catch {
+      busy = false;
+      return set('error', { error: 'hors ligne' });
+    }
+    if (taken) {
+      busy = false;
+      return set('taken');
+    }
+  }
   set('sync');
   try {
     const before = JSON.stringify(cloudPayload(store.snapshot()));
@@ -52,6 +69,10 @@ export async function push() {
       const merged = mergeProfiles(store.snapshot(), out.profile);
       if (JSON.stringify(cloudPayload(merged)) !== before) {
         store.adopt(merged);
+        if (store.boat && store.boat !== getBoat().id) {
+          setBoat(store.boat);
+          window.dispatchEvent(new CustomEvent('boatchange'));
+        }
         window.dispatchEvent(new CustomEvent('progress'));
       }
     }
@@ -65,18 +86,6 @@ export async function push() {
       again = false;
       schedule();
     }
-  }
-}
-
-// Remise à zéro : on remplace aussi la version en ligne (sinon la fusion ferait revenir l'ancienne progression).
-export async function resetCloud() {
-  const k = await key().catch(() => null);
-  if (!k) return;
-  try {
-    await request(k, 'PUT', { profile: cloudPayload(store.snapshot()), replace: true });
-    set('ok', { at: Date.now() });
-  } catch (e) {
-    set('error', { error: e.message });
   }
 }
 

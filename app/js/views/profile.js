@@ -7,12 +7,14 @@ import { saveBackup, pickBackup, openProfile, dateFr } from '../ui/backup.js';
 import { xpBreakdown, gradeOf, GRADES, BADGES, earnedBadges, examChecks } from '../core/progress.js';
 import { perksOf } from '../core/look.js';
 import { boatIcon } from '../ui/boat.js';
-import { schedule, cloudStatus, resetCloud } from '../core/cloud.js';
+import { schedule, cloudStatus } from '../core/cloud.js';
 import { dateInputHTML, bindDateInput } from '../ui/dateinput.js';
 import { lookPickerHTML, bindLookPicker } from '../ui/lookpicker.js';
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const REFLEX_NAMES = { amure: 'Bâbord ou tribord ?', allure: 'Quelle allure ?', manoeuvre: 'Quelle manœuvre ?', barre: 'À la barre !', mix: 'Grand mix' };
+const REFLEX_NAMES = { amure: 'Bâbord ou tribord ?', allure: 'Quelle allure ?', manoeuvre: 'Quelle manœuvre ?', barre: 'À la barre !', mix: 'Grand mix', gite: 'Pas de dessalage !', eclair: 'Quiz éclair', mots: 'Les mots du marin', balise: 'Balisage express', priorite: 'Qui est prioritaire ?', beaufort: 'Force du vent' };
+
+let offCloud = null; // un seul écouteur d'état de sauvegarde, même si l'écran se redessine
 
 export function render(root, params = []) {
   const xp = xpBreakdown();
@@ -88,9 +90,9 @@ export function render(root, params = []) {
       </section>
 
       <section class="card">
-        <h3>Records des réflexes</h3>
+        <h3>Records des jeux</h3>
         <ul class="xp-list">${Object.entries(REFLEX_NAMES).map(([id, n]) => `<li><span>${n}</span><b>${reflexes[id] || 0} pts</b></li>`).join('')}</ul>
-        <a class="btn small" href="#/reflexes">⚡ S’entraîner</a>
+        <a class="btn small" href="#/jeux">🎮 Jouer</a>
       </section>
 
 
@@ -129,15 +131,19 @@ export function render(root, params = []) {
     if (!el) return;
     const st = cloudStatus();
     const hm = (t) => new Date(t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    el.className = `cloud-line cloud-${!store.name || !store.birth ? 'off' : st.state}`;
+    el.className = `cloud-line cloud-${!store.name || !store.birth ? 'off' : st.state === 'taken' ? 'error' : st.state}`;
     el.innerHTML = !store.name || !store.birth
       ? '☁️ Renseigne ton pseudo et ta date de naissance : ta progression sera sauvegardée en ligne et tu la retrouveras sur tous tes appareils.'
+      : st.state === 'taken' ? '☁️ Ce pseudo et cette date de naissance ont déjà une progression en ligne. Pour la reprendre ici, utilise « Nouveau marin sur cet appareil ».'
+      : st.state === 'off' ? '☁️ Sauvegarde en ligne indisponible pour l’instant.'
       : st.state === 'sync' ? '☁️ Sauvegarde en ligne…'
       : st.state === 'error' ? `☁️ Pas de connexion au serveur (${esc(st.error)}) : la sauvegarde partira dès que possible.`
       : `☁️ Sauvegardé en ligne${st.at || store.cloud?.at ? ` à ${hm(st.at || store.cloud.at)}` : ''}. Sur un autre appareil, mets le même pseudo et la même date de naissance.`;
   };
   cloudLine();
+  offCloud?.();
   window.addEventListener('cloudstatus', cloudLine);
+  offCloud = () => window.removeEventListener('cloudstatus', cloudLine);
   bindDateInput(root.querySelector('#pbirth'), (iso) => {
     if (!iso || iso === store.birth) return;
     store.setBirth(iso);
@@ -156,7 +162,8 @@ export function render(root, params = []) {
     m.classList.toggle('bad', bad);
   };
   protectStorage().then((ok) => {
-    root.querySelector('#persist').textContent = ok
+    const el = root.querySelector('#persist');
+    if (el) el.textContent = ok
       ? 'Le navigateur la protège : il ne l’effacera pas pour faire de la place.'
       : 'Elle reste tant que les données du site ne sont pas effacées. Pense à faire une sauvegarde de temps en temps.';
   });
@@ -200,9 +207,9 @@ export function render(root, params = []) {
   root.querySelector('#reset').addEventListener('click', () => {
     if (!window.confirm('Effacer toutes tes étoiles, leçons, records et badges ? (Ton pseudo et ton bateau sont conservés.)')) return;
     store.reset();
-    resetCloud();
+    schedule(0);
     window.dispatchEvent(new CustomEvent('progress'));
     render(root);
   });
-  return () => window.removeEventListener('cloudstatus', cloudLine);
+  return () => offCloud?.();
 }

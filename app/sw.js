@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b15-suivi-profils';
+const VERSION = 'b16-lecons-quiz';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',
@@ -72,8 +72,10 @@ const ASSETS = [
   './js/views/matelotage.js',
   './js/views/play.js',
   './js/views/profile.js',
+  './js/views/quiz.js',
   './js/views/reflexes.js',
   './js/views/theory.js',
+  './js/views/theory2.js',
   './manifest.webmanifest',
 ];
 // </precache>
