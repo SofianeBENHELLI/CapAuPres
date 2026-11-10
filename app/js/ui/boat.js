@@ -65,7 +65,7 @@ const GEOM = {
     wake: 'M-13,46 L-30,96 M13,46 L30,96 M0,48 L0,84',
   },
   catamaran: {
-    // pas de bôme sur le Hobie 16 : boomLen = longueur de la bordure de grand-voile
+    // catamaran du club, sans bôme : boomLen = longueur de la bordure de grand-voile
     mast: { x: 0, y: -22 }, boomLen: 54, tack: { x: 0, y: -50 }, jibLen: 30, noBoom: true,
     body: (hull) => {
       const h = (x) => `M${x},-58 C${x + 6},-44 ${x + 7},-14 ${x + 7},18 L${x + 5},48 L${x - 5},48 L${x - 7},18 C${x - 7},-14 ${x - 6},-44 ${x},-58 Z`;

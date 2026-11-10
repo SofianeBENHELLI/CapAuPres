@@ -23,10 +23,10 @@ export const TERMS = [
   { id: 'safran', term: 'Safran', cat: 'coque', def: 'Le gouvernail : une lame sous l’arrière du bateau, orientée par la barre.', note: { catamaran: 'Un safran sur chaque coque, reliés par une barre de liaison.' } },
   { id: 'barre', term: 'Barre', cat: 'coque', def: 'Le manche qui oriente le safran. On pousse la barre du côté de la voile pour lofer, on la tire pour abattre.' },
   { id: 'stick', term: 'Stick (allonge de barre)', cat: 'coque', def: 'Prolongement articulé de la barre : il permet de barrer assis sur le bord, au rappel.', boats: ['deriveur', 'optimist', 'catamaran'] },
-  { id: 'boutdehors', term: 'Bout-dehors', cat: 'coque', def: 'Tube qui sort à l’avant du bateau pour amurer (fixer) le spi asymétrique loin devant.', boats: ['j80', 'catamaran'], note: { catamaran: 'Avec le spi, en option sur le Hobie 16 et de série sur beaucoup de catamarans de sport.' } },
+  { id: 'boutdehors', term: 'Bout-dehors', cat: 'coque', def: 'Tube qui sort à l’avant du bateau pour amurer (fixer) le spi asymétrique loin devant.', boats: ['j80', 'catamaran'], note: { catamaran: 'Avec le spi, en option sur certains catamarans et de série sur beaucoup de catamarans de sport.' } },
 
   // ---- Le gréement
-  { id: 'mat', term: 'Mât', cat: 'greement', def: 'Le grand poteau vertical qui porte les voiles.', note: { catamaran: 'Le mât du Hobie 16 tourne sur lui-même pour mieux profiler la voile.', optimist: 'Le mât de l’Optimist tient tout seul, sans câbles.' } },
+  { id: 'mat', term: 'Mât', cat: 'greement', def: 'Le grand poteau vertical qui porte les voiles.', note: { catamaran: 'Le mât du catamaran tourne sur lui-même pour mieux profiler la voile.', optimist: 'Le mât de l’Optimist tient tout seul, sans câbles.' } },
   { id: 'bome', term: 'Bôme', cat: 'greement', boats: ['deriveur', 'optimist', 'j80'], def: 'Le bras horizontal fixé au mât, qui tient le bas de la grand-voile. Attention à la tête quand elle passe d’un bord à l’autre ! (Certains catamarans d’école n’en ont pas : leur grand-voile est tenue par l’écoute, directement au point d’écoute.)' },
   { id: 'livarde', term: 'Livarde', cat: 'greement', def: 'Perche en diagonale qui tend le coin haut de la voile de l’Optimist.', boats: ['optimist'] },
   { id: 'etai', term: 'Étai', cat: 'greement', def: 'Câble qui tient le mât vers l’avant. Le foc y est accroché.', boats: ['deriveur', 'catamaran', 'j80'] },
@@ -37,7 +37,7 @@ export const TERMS = [
   // ---- Les voiles
   { id: 'gv', term: 'Grand-voile', cat: 'voiles', def: 'La voile principale, accrochée au mât et à la bôme.', note: { optimist: 'Sur l’Optimist, c’est la seule voile.' } },
   { id: 'foc', term: 'Foc', cat: 'voiles', def: 'La voile d’avant, triangulaire, accrochée sur l’étai.', boats: ['deriveur', 'catamaran', 'j80'] },
-  { id: 'spi', term: 'Spi (spinnaker)', cat: 'voiles', def: 'Grande voile légère et très creuse, pour le portant. Sur le J80 et les catamarans, il est asymétrique et amuré sur le bout-dehors.', boats: ['j80', 'catamaran'], note: { catamaran: 'En option sur le Hobie 16 (kit spi) : on descend toujours en zigzag, mais plus vite.' } },
+  { id: 'spi', term: 'Spi (spinnaker)', cat: 'voiles', def: 'Grande voile légère et très creuse, pour le portant. Sur le J80 et les catamarans, il est asymétrique et amuré sur le bout-dehors.', boats: ['j80', 'catamaran'], note: { catamaran: 'En option sur certains catamarans (kit spi) : on descend toujours en zigzag, mais plus vite.' } },
   { id: 'guindant', term: 'Guindant', cat: 'voiles', def: 'Le bord avant d’une voile (le long du mât ou de l’étai). C’est lui qui faseye en premier.' },
   { id: 'chute', term: 'Chute', cat: 'voiles', def: 'Le bord arrière d’une voile, libre.' },
   { id: 'bordure', term: 'Bordure', cat: 'voiles', def: 'Le bord bas d’une voile (le long de la bôme pour la grand-voile).' },
@@ -57,7 +57,7 @@ export const TERMS = [
   { id: 'winch', term: 'Winch', cat: 'accastillage', icon: 'winch', def: 'Tambour qui tourne dans un seul sens, avec une manivelle : il aide à border une écoute très chargée.', boats: ['j80'] },
   { id: 'manille', term: 'Manille', cat: 'accastillage', icon: 'manille', def: 'Anneau en métal qui se ferme par une vis : il relie une voile, une poulie ou un cordage.' },
   { id: 'manillesouple', term: 'Manille souple (Dyneema)', cat: 'accastillage', icon: 'manillesouple', boats: ['deriveur', 'catamaran', 'j80'], def: 'Une boucle en cordage Dyneema fermée par un gros nœud : on passe la boucle par-dessus le nœud. Elle s’ouvre à la main, sans outil, et remplace la manille en métal : aussi solide, plus légère, elle ne raye rien. Pour fixer une poulie, un point d’écoute ou d’amure.' },
-  { id: 'chariot', term: 'Chariot (rail d’écoute)', cat: 'accastillage', icon: 'chariot', def: 'Rail sur lequel glisse la poulie d’écoute de grand-voile : on le déplace pour régler la voile sans changer l’écoute.', boats: ['catamaran', 'j80', 'deriveur'], note: { deriveur: 'Selon les modèles de dériveur.', catamaran: 'Sur le Hobie 16, il est sur la poutre arrière.' } },
+  { id: 'chariot', term: 'Chariot (rail d’écoute)', cat: 'accastillage', icon: 'chariot', def: 'Rail sur lequel glisse la poulie d’écoute de grand-voile : on le déplace pour régler la voile sans changer l’écoute.', boats: ['catamaran', 'j80', 'deriveur'], note: { deriveur: 'Selon les modèles de dériveur.', catamaran: 'Sur le catamaran, il est sur la poutre arrière.' } },
 
   // ---- Les réglages
   { id: 'border', term: 'Border', cat: 'reglages', def: 'Tirer sur l’écoute : la voile se rapproche de l’axe du bateau.' },

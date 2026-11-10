@@ -45,7 +45,7 @@ export const BOATS = {
     id: 'catamaran',
     name: 'Catamaran',
     long: 'Catamaran de sport',
-    example: 'Type Hobie Cat 16',
+    example: 'Catamaran d’école, sans bôme',
     article: 'un catamaran',
     jib: true,
     turnPer90: 2.5, // grand rayon de giration : tourner coûte cher
@@ -74,7 +74,7 @@ export const BOATS = {
     downwindTip: (a) => `Un catamaran ne descend jamais plein vent arrière : il perd toute sa vitesse. Descends en zigzag à ≈ ${a}° du vent et empanne : c’est beaucoup plus rapide.`,
     heavyWeather: 'On <b>tire</b> sur le <b>Cunningham</b>, à bloc : sur un catamaran c’est LE réglage de vent fort. Il ouvre le haut de la grand-voile qui « vrille » et laisse échapper le vent. On ouvre le chariot, on tourne moins le mât, et on choque l’écoute dans les rafales pour ne pas chavirer.',
     maneuverNote: 'Sur un catamaran, le virement est délicat : garde de la vitesse, ne pousse pas la barre à fond (les safrans freinent) et laisse le foc à contre un instant pour aider l’avant à passer. L’empannage, lui, est facile.',
-    trimNote: 'Le Hobie 16 n’a pas de dérive : ses coques asymétriques empêchent le bateau de déraper.',
+    trimNote: 'Ce catamaran n’a pas de dérive : ses coques asymétriques empêchent le bateau de déraper.',
   },
 
   optimist: {

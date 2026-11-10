@@ -139,7 +139,7 @@ const DERIVEUR_TRIM = {
   },
 };
 
-// ---------------------------------------------------------------- Catamaran (Hobie Cat 16)
+// ---------------------------------------------------------------- Catamaran (sans bôme)
 const CAT_CONTROLS = [
   {
     id: 'ecoute', name: 'Écoute de GV', what: 'Palan d’écoute de la grand-voile',
