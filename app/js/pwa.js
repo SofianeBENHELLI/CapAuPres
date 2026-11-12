@@ -63,7 +63,7 @@ refreshInstallButton();
 // ---------- Service worker et mises à jour
 // Nouveautés de la dernière version, annoncées une fois la mise à jour installée (à tenir à jour
 // à chaque publication, avec VERSION dans sw.js).
-const NEWS = 'météo sur 7 jours, fiche météo à imprimer, « Retrouver un compte existant » dans le profil';
+const NEWS = 'météo sur 7 jours, fiche météo en PDF (aussi sur tablette), « Retrouver un compte existant » dans le profil';
 const UPDATED_KEY = 'capaupres.justUpdated';
 const applyUpdate = (worker) => {
   try {

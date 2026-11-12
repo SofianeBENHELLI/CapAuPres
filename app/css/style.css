@@ -1500,47 +1500,15 @@ html, body { overflow-x: clip; }
   .day-tab { flex-basis: 104px; }
 }
 
-/* ---- Fiche météo A4 (impression / PDF) ---- */
-#printSheet { display: none; }
-@page { size: A4 portrait; margin: 9mm; }
-@media print {
-  html, body { background: #fff !important; height: auto !important; overflow: visible !important; }
-  body > *:not(#printSheet) { display: none !important; }
-  #printSheet { display: flex; flex-direction: column; gap: 3.2mm; width: 192mm; height: 277mm; overflow: hidden; color: #1d2639; font-family: var(--font); font-size: 9.5pt; line-height: 1.3;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  #printSheet h1 { margin: 0; font-size: 16.5pt; color: #243150; line-height: 1.1; white-space: nowrap; }
-  #printSheet h2 { margin: 0 0 1.5mm; font-size: 10.5pt; color: #243150; }
-  #printSheet p { margin: 0; }
-  .ps-head { display: flex; align-items: center; gap: 5mm; border-bottom: 0.6mm solid #243150; padding-bottom: 3mm; }
-  .ps-head img { height: 19mm; width: auto; }
-  .ps-head > div:nth-child(2) { flex: 1; }
-  .ps-when { font-size: 12pt; white-space: nowrap; font-weight: 800; color: #1b6f9e; margin-top: 1mm !important; }
-  .ps-flag { display: grid; justify-items: center; text-align: center; gap: 0.5mm; padding: 2mm 4mm; border-radius: 3mm; border: 0.5mm solid #c9d3df; border-left-width: 2mm; min-width: 44mm; }
-  .ps-flag b { font-size: 13pt; }
-  .ps-flag span { font-size: 8pt; }
-  .ps-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2mm; }
-  .ps-kpi { background: #eef4f9; border-radius: 2.5mm; padding: 2mm 2.5mm; display: grid; gap: 0.3mm; }
-  .ps-kpi small { text-transform: uppercase; letter-spacing: 0.3px; font-weight: 700; font-size: 7pt; color: #566179; }
-  .ps-kpi b { font-size: 14pt; line-height: 1.1; color: #243150; }
-  .ps-kpi span { font-size: 7.5pt; color: #566179; }
-  .ps-table table { width: 100%; border-collapse: collapse; }
-  .ps-table th, .ps-table td { border: 0.25mm solid #c9d3df; padding: 1.2mm 2mm; text-align: center; font-size: 9.5pt; }
-  .ps-table tr:first-child th { background: #243150; color: #fff; font-size: 11pt; }
-  .ps-table th:first-child { text-align: left; background: #eef4f9; color: #243150; width: 30mm; }
-  .ps-table td svg { vertical-align: -3px; }
-  .ps-table .cond-arrow { fill: #1b6f9e; }
-  .ps-map { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-  .ps-mapbox { flex: 1 1 auto; min-height: 0; border-radius: 3mm; overflow: hidden; background: #1f86c0; }
-  .ps-mapbox svg { display: block; width: 100%; height: 100%; aspect-ratio: auto; }
-  .ps-mapbox .wm-streak { animation: none; opacity: 0.35; }
-  .ps-mapbox .wm-night { display: none; }
-  .ps-map p { font-size: 7.5pt; color: #566179; margin-top: 1mm !important; }
-  .ps-tide .tide-svg { display: block; width: 100%; height: 30mm; }
-  .ps-notes ul { margin: 0; padding-left: 4.5mm; font-size: 8.5pt; }
-  .ps-foot { margin-top: auto; border-top: 0.6mm solid #243150; padding-top: 2mm; display: grid; gap: 1mm; }
-  .ps-foot b { font-size: 10pt; color: #cc2f35; }
-  .ps-foot span { font-size: 7pt; color: #566179; }
-}
+/* ---- Fiche météo : aperçu du PDF dans l'appli ---- */
+.pdf-view { position: fixed; inset: 0; z-index: 300; background: rgba(20, 28, 54, 0.92); display: flex; flex-direction: column; }
+.pv-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: max(10px, calc(env(safe-area-inset-top) + 6px)) 12px 10px; background: var(--card); color: var(--ink); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25); }
+.pv-bar b { margin-right: auto; }
+.pv-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.pv-page { flex: 1; min-height: 0; overflow: auto; padding: 14px; display: grid; justify-items: center; align-content: start; -webkit-overflow-scrolling: touch; }
+.pv-page img { width: min(100%, 820px); height: auto; background: #fff; border-radius: 4px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45); }
+.pv-wait { color: #fff; font-weight: 700; margin-top: 30vh; }
+body.pdf-open { overflow: hidden; }
 
 /* Profil : changer de compte, retrouver un compte existant */
 .acct-switch { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }

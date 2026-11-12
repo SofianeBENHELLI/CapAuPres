@@ -5,6 +5,7 @@ import { levelOfKn } from '../core/weather.js';
 import { WINDS } from '../core/polar.js';
 import { compass, compassLong } from '../core/angles.js';
 import { windMapNode, updateWindMap } from '../ui/windmap.js';
+import { openSheet } from '../ui/meteopdf.js';
 
 const num = (n, d = 1) => n.toLocaleString('fr-FR', { maximumFractionDigits: d });
 export const hhmm = (t) => t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -227,7 +228,7 @@ export function render(root) {
             <h1 class="h2">Météo de la baie de La Baule</h1>
             <span class="muted">Club nautique CNBPP · Le Pouliguen · <b id="ctitle"></b></span>
           </div>
-          <button class="btn small primary" id="cprint">🖨️ Imprimer</button>
+          <button class="btn small primary" id="cprint">🖨️ Imprimer / PDF</button>
           <button class="btn small ghost" id="crefresh" aria-label="Actualiser" title="${data.stale ? 'Hors ligne · ' : ''}Mis à jour à ${hhmm(new Date(data.fetchedAt))}">↻</button>
         </div>
         <p class="muted small-print met-src">${data.stale ? '⚠️ Hors ligne, dernière lecture à ' : 'Prévisions sur 7 jours, mises à jour à '}${hhmm(new Date(data.fetchedAt))} · modèles Météo-France (vent AROME et ARPEGE, vagues MFWAM) via Open-Meteo.</p>
@@ -313,14 +314,15 @@ export function render(root) {
 }
 
 
-// ---------------------------------------------------------------- Fiche A4 à imprimer
+// ---------------------------------------------------------------- Fiche A4 (PDF)
 // Une page, toujours la même : le créneau choisi et ses 3 heures suivantes, la carte de la baie
-// (vent et courant), la marée, le drapeau. « Imprimer » ouvre la boîte d'impression du navigateur,
-// d'où l'on peut aussi enregistrer en PDF.
+// (vent et courant), la marée, le drapeau. La fiche est fabriquée en PDF dans l'appli
+// (voir ui/meteopdf.js), puis affichée : on peut la partager, l'imprimer ou l'enregistrer.
 const SPAN_H = 3;
 const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+const FLAG_ORDER = ['green', 'yellow', 'red', 'black', 'night'];
 
-function printSheet(data, o, now, maxO, mapEl) {
+async function printSheet(data, o, now, maxO, mapEl) {
   const at0 = atOffset(o, now);
   const slots = Array.from({ length: SPAN_H + 1 }, (_, k) => Math.min(maxO, o + k)).filter((v, i, a) => a.indexOf(v) === i).map((oo) => {
     const s = summarize(data, atOffset(oo, now), now);
@@ -329,81 +331,54 @@ function printSheet(data, o, now, maxO, mapEl) {
   const { s, flag } = slots[0];
   const end = slots[slots.length - 1].s.at;
   const hh = (d) => `${d.getHours()} h${d.getMinutes() ? String(d.getMinutes()).padStart(2, '0') : ''}`;
-  const dateTxt = cap(at0.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
   const rel = reliability(at0, now);
-  const worst = slots.reduce((m, x) => (['green', 'yellow', 'red', 'black', 'night'].indexOf(x.flag?.color) > ['green', 'yellow', 'red', 'black', 'night'].indexOf(m?.color) ? x.flag : m), flag);
+  const worst = slots.reduce((m, x) => (FLAG_ORDER.indexOf(x.flag?.color) > FLAG_ORDER.indexOf(m?.color) ? x.flag : m), flag);
   const ext = s.tide?.extremes.filter((e) => e.time > s.at) || [];
   const marnage = ext.length > 1 ? Math.abs(ext[0].level - ext[1].level) : null;
+  const short = (f) => (f ? cap(f.label.replace('Drapeau ', '')) : '-');
   // le pourquoi du drapeau le plus sévère du créneau, puis les avertissements (sans doublon)
-  const notes = [...new Set([...(worst?.why || []), ...slots.flatMap((x) => x.flag?.warnings || []).map((w) => w.replace(/\(\+\d+ nds\)/, '').replace(/\s+:/, ' :'))])].slice(0, 4);
-  const cell = (label, big, small = '') => `<div class="ps-kpi"><small>${label}</small><b>${big}</b><span>${small}</span></div>`;
-  const row = (label, f) => `<tr><th>${label}</th>${slots.map((x) => `<td>${f(x)}</td>`).join('')}</tr>`;
-  const map = mapEl ? mapEl.outerHTML.replace(/id="[^"]*"/g, '') : '';
+  const notes = [...new Set([...(worst?.why || []), ...slots.flatMap((x) => x.flag?.warnings || []).map((w) => w.replace(/ \(\+\d+ nds\)/, ''))])].map(cap);
+  const windDir = s.wind ? compassLong(s.wind.from) : '';
 
-  document.getElementById('printSheet')?.remove();
-  const sheet = document.createElement('div');
-  sheet.id = 'printSheet';
-  sheet.innerHTML = `
-    <header class="ps-head">
-      <img src="assets/cnbpp-logo.png" alt="CNBPP"/>
-      <div>
-        <h1>Météo de la baie de La Baule</h1>
-        <p>Club nautique CNBPP · Le Pouliguen</p>
-        <p class="ps-when">${dateTxt} · de ${hh(at0)} à ${hh(end)}</p>
-      </div>
-      <div class="ps-flag flag-bg-${worst?.color || 'none'}">${worst ? flagSVG(worst.color, 54) : ''}<b>${worst ? cap(worst.label.replace('Drapeau ', '')) : ''}</b><span>${worst?.text || ''}</span></div>
-    </header>
+  // la courbe de marée doit être dans la page pour que son style soit lu
+  const holder = document.createElement('div');
+  holder.style.cssText = 'position:absolute;left:-9999px;top:0;width:600px';
+  holder.innerHTML = s.tide ? tideSVG(s.tide, s.at, slots.length - 1) : '';
+  document.body.appendChild(holder);
 
-    <section class="ps-kpis">
-      ${s.wind ? cell('Vent', `${s.wind.kn} nds`, `rafales ${s.wind.gust} · ${compassLong(s.wind.from)} · force ${s.wind.bf}`) : ''}
-      ${s.waves ? cell('Vagues au large', `${num(s.waves.height)} m`, `période ${num(s.waves.period, 0)} s · houle de ${compass(s.waves.from)}`) : ''}
-      ${s.tide ? cell('Marée', s.tide.rising ? '↗ Montante' : '↘ Descendante', `${ext.slice(0, 2).map((e) => `${e.type === 'PM' ? 'PM' : 'BM'} ${hhmm(e.time)}`).join(' · ')}${marnage ? ` · marnage ${num(marnage)} m` : ''}`) : ''}
-      ${s.sky ? cell('Ciel', `${s.sky.icon} ${s.temp}°`, `${s.sky.label}${s.water != null ? ` · eau ${num(s.water, 0)}°` : ''}`) : ''}
-      ${s.current ? cell('Courant', `${num(s.current.kn)} nd`, `vers ${compass(s.current.to)}`) : ''}
-    </section>
-
-    <section class="ps-table">
-      <h2>Évolution sur le créneau</h2>
-      <table>
-        <tr><th></th>${slots.map((x) => `<th>${hh(x.s.at)}</th>`).join('')}</tr>
-        ${row('Drapeau', (x) => (x.flag ? `${flagSVG(x.flag.color, 20)} ${cap(x.flag.label.replace('Drapeau ', ''))}` : ''))}
-        ${row('Vent moyen', (x) => (x.s.wind ? `<b>${x.s.wind.kn}</b> nds` : '-'))}
-        ${row('Rafales', (x) => (x.s.wind ? `${x.s.wind.gust} nds` : '-'))}
-        ${row('Direction', (x) => (x.s.wind ? `${arrow(x.s.wind.from, 16)} ${compass(x.s.wind.from)}` : '-'))}
-        ${row('Vagues', (x) => (x.s.waves ? `${num(x.s.waves.height)} m` : '-'))}
-        ${row('Ciel', (x) => (x.s.sky ? `${x.s.sky.icon} ${x.s.temp}°` : '-'))}
-      </table>
-    </section>
-
-    <section class="ps-map">
-      <h2>Vent et courant sur la baie à ${hh(at0)}</h2>
-      <div class="ps-mapbox">${map}</div>
-      <p>${s.wind ? `Flèches : vent ${/^[EO]/.test(compassLong(s.wind.from)) ? 'd’' : 'de '}${compassLong(s.wind.from)}, ${s.wind.kn} nds, rafales ${s.wind.gust}.` : ''} ${s.current ? `Chevrons : courant ${num(s.current.kn)} nd vers ${compass(s.current.to)}.` : ''} Carte indicative, ne sert pas à naviguer.</p>
-    </section>
-
-    ${s.tide ? `<section class="ps-tide">
-      <h2>Marée du jour · ${s.tide.rising ? 'elle monte' : 'elle descend'} à ${hh(at0)}${marnage ? ` · marnage ≈ ${num(marnage)} m` : ''}</h2>
-      ${tideSVG(s.tide, s.at, slots.length - 1)}
-    </section>` : ''}
-
-    ${notes.length ? `<section class="ps-notes"><h2>À savoir</h2><ul>${notes.map((n) => `<li>${cap(n)}</li>`).join('')}</ul></section>` : ''}
-
-    <footer class="ps-foot">
-      <b>Météo à titre informatif. Vérifiez la météo avant votre sortie et demandez l’avis du responsable de la base ou de votre moniteur.</b>
-      <span>Fiabilité de cette prévision : ${rel.label.toLowerCase()} (${rel.model}). Données Open-Meteo, modèles Météo-France · Marée : modèle océanique, l’annuaire du SHOM fait foi · Édité le ${now.toLocaleDateString('fr-FR')} à ${hhmm(now)} · voile.benhelli.org</span>
-    </footer>`;
-  document.body.appendChild(sheet);
-  const done = () => {
-    sheet.remove();
-    window.removeEventListener('afterprint', done);
+  const model = {
+    title: 'Météo de la baie de La Baule',
+    club: 'Club nautique CNBPP · Le Pouliguen',
+    when: `${cap(at0.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))} · de ${hh(at0)} à ${hh(end)}`,
+    flag: { color: worst?.color || 'none', label: short(worst), text: worst?.text || '' },
+    kpis: [
+      s.wind && { label: 'Vent', big: `${s.wind.kn} nds`, small: `rafales ${s.wind.gust} · ${windDir} · force ${s.wind.bf}` },
+      s.waves && { label: 'Vagues au large', big: `${num(s.waves.height)} m`, small: `période ${num(s.waves.period, 0)} s · houle de ${compass(s.waves.from)}` },
+      s.tide && { label: 'Marée', big: s.tide.rising ? '↗ Montante' : '↘ Descendante', small: `${ext.slice(0, 2).map((e) => `${e.type} ${hhmm(e.time)}`).join(' · ')}${marnage ? ` · marnage ${num(marnage)} m` : ''}` },
+      s.sky && { label: 'Ciel', big: `${s.sky.icon} ${s.temp}°`, small: `${s.sky.label}${s.water != null ? ` · eau ${num(s.water, 0)}°` : ''}` },
+      s.current && { label: 'Courant', big: `${num(s.current.kn)} nd`, small: `vers ${compass(s.current.to)}` },
+    ].filter(Boolean),
+    slots: slots.map((x) => ({
+      time: hh(x.s.at),
+      flag: { color: x.flag?.color || 'none', label: short(x.flag) },
+      kn: x.s.wind?.kn ?? '-', gust: x.s.wind?.gust ?? '-', from: x.s.wind?.from ?? 0, dir: x.s.wind ? compass(x.s.wind.from) : '-',
+      waves: x.s.waves ? `${num(x.s.waves.height)} m` : '-',
+      sky: x.s.sky ? `${x.s.sky.icon} ${x.s.temp}°` : '-',
+    })),
+    mapTitle: `Vent et courant sur la baie à ${hh(at0)}`,
+    mapSvg: mapEl,
+    mapCaption: `${s.wind ? `Flèches : vent ${/^[EO]/.test(windDir) ? 'd’' : 'de '}${windDir}, ${s.wind.kn} nds, rafales ${s.wind.gust}. ` : ''}${s.current ? `Chevrons : courant ${num(s.current.kn)} nd vers ${compass(s.current.to)}. ` : ''}Carte indicative, ne sert pas à naviguer.`,
+    tideTitle: s.tide ? `Marée du jour · ${s.tide.rising ? 'elle monte' : 'elle descend'} à ${hh(at0)}${marnage ? ` · marnage ≈ ${num(marnage)} m` : ''}` : '',
+    tideSvg: holder.querySelector('svg'),
+    notes,
+    disclaimer: 'Météo à titre informatif. Vérifiez la météo avant votre sortie et demandez l’avis du responsable de la base ou de votre moniteur.',
+    small: `Fiabilité de cette prévision : ${rel.label.toLowerCase()} (${rel.model}). Données Open-Meteo, modèles Météo-France · Marée : modèle océanique, l’annuaire du SHOM fait foi · Édité le ${now.toLocaleDateString('fr-FR')} à ${hhmm(now)} · voile.benhelli.org`,
   };
-  window.addEventListener('afterprint', done);
-  // on laisse le logo se charger avant d'ouvrir la boîte d'impression
-  const img = sheet.querySelector('img');
-  const go = () => window.print();
-  if (img.complete) go();
-  else {
-    img.onload = go;
-    img.onerror = go;
+  const pad = (n) => String(n).padStart(2, '0');
+  const name = `meteo-la-baule-${at0.getFullYear()}-${pad(at0.getMonth() + 1)}-${pad(at0.getDate())}-${pad(at0.getHours())}h.pdf`;
+  try {
+    return await openSheet(model, name);
+  } finally {
+    holder.remove();
   }
 }

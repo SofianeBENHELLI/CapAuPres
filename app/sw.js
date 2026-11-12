@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b20-annonce-maj';
+const VERSION = 'b21-fiche-pdf';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',
@@ -59,6 +59,7 @@ const ASSETS = [
   './js/ui/gear.js',
   './js/ui/lookpicker.js',
   './js/ui/map.js',
+  './js/ui/meteopdf.js',
   './js/ui/rope.js',
   './js/ui/windmap.js',
   './js/views/boat.js',
