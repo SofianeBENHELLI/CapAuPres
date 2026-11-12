@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b19-maj-auto';
+const VERSION = 'b20-annonce-maj';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',
@@ -83,7 +83,8 @@ const ASSETS = [
 const CACHE = `capaupres-${VERSION}`;
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS)));
+  // cache: 'reload' : on prend les fichiers sur le réseau, jamais une ancienne copie gardée par le navigateur
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(ASSETS.map((u) => new Request(u, { cache: 'reload' })))));
 });
 
 self.addEventListener('activate', (event) => {

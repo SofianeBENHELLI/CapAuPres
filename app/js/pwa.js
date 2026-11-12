@@ -61,10 +61,31 @@ installBtn.addEventListener('click', async () => {
 refreshInstallButton();
 
 // ---------- Service worker et mises à jour
+// Nouveautés de la dernière version, annoncées une fois la mise à jour installée (à tenir à jour
+// à chaque publication, avec VERSION dans sw.js).
+const NEWS = 'météo sur 7 jours, fiche météo à imprimer, « Retrouver un compte existant » dans le profil';
+const UPDATED_KEY = 'capaupres.justUpdated';
+const applyUpdate = (worker) => {
+  try {
+    sessionStorage.setItem(UPDATED_KEY, '1');
+  } catch {
+    /* stockage indisponible */
+  }
+  worker.postMessage('SKIP_WAITING');
+};
+// Après le rechargement : on montre qu'une mise à jour vient d'être installée.
+try {
+  if (sessionStorage.getItem(UPDATED_KEY)) {
+    sessionStorage.removeItem(UPDATED_KEY);
+    showBanner(`🆕 Cap au Près vient d’être mis à jour : ${NEWS}.`, { actions: [{ label: 'OK', primary: true }], timeout: 12000 });
+  }
+} catch {
+  /* stockage indisponible */
+}
 function promptUpdate(worker) {
   showBanner('🆕 Une nouvelle version est disponible.', {
     actions: [
-      { label: 'Mettre à jour', primary: true, run: () => worker.postMessage('SKIP_WAITING') },
+      { label: 'Mettre à jour', primary: true, run: () => applyUpdate(worker) },
       { label: 'Plus tard' },
     ],
   });
@@ -85,7 +106,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     .then((reg) => {
       // Une nouvelle version attendait déjà à l'ouverture : on l'applique tout de suite, sans rien demander
       // (on vient d'arriver, il n'y a rien à interrompre).
-      if (reg.waiting && navigator.serviceWorker.controller) reg.waiting.postMessage('SKIP_WAITING');
+      if (reg.waiting && navigator.serviceWorker.controller) applyUpdate(reg.waiting);
       const opened = Date.now();
       reg.addEventListener('updatefound', () => {
         const w = reg.installing;
@@ -95,7 +116,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
           // première installation : rien à proposer, l'app est simplement prête hors ligne
           // trouvée dans les premières secondes : on l'applique directement ; plus tard, on demande
           if (navigator.serviceWorker.controller) {
-            if (Date.now() - opened < 15000) w.postMessage('SKIP_WAITING');
+            if (Date.now() - opened < 15000) applyUpdate(w);
             else promptUpdate(w);
           }
           else showBanner('✅ Application prête à fonctionner hors ligne.', { timeout: 4000 });
