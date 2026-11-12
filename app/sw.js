@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b22-imprimer-pdf';
+const VERSION = 'b23-fiche-directe';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',

@@ -315,8 +315,8 @@ export function jpegToPdf(jpeg, wPx, hPx) {
 // Un seul geste : « Imprimer » ouvre le PDF.
 // - Dans un navigateur : un onglet s'ouvre tout de suite (pendant le clic, sinon il serait bloqué)
 //   et reçoit le PDF dès qu'il est prêt ; la visionneuse du navigateur sait l'imprimer.
-// - Appli installée sur l'écran d'accueil (tablette, téléphone) : pas d'onglet possible, on passe
-//   par la feuille de partage du système, qui affiche le PDF et propose Imprimer.
+// - Appli installée sur l'écran d'accueil (tablette, téléphone) : pas d'onglet possible, la fiche
+//   s'affiche en plein écran dans l'appli ; un petit bouton 🖨️ l'envoie à l'imprimante.
 const isStandalone = () => navigator.standalone === true || window.matchMedia?.('(display-mode: standalone)').matches;
 
 async function buildPdf(model, fileName) {
@@ -356,19 +356,10 @@ export async function openPdf(makeModel, fileName) {
       a.click();
       a.remove();
     };
-    if (navigator.canShare?.({ files: [out.file] })) {
-      try {
-        await share();
-        wait.close();
-      } catch (e) {
-        if (e.name === 'AbortError') wait.close();
-        // le système exige un nouveau geste : la fiche est prête, un toucher l'ouvre
-        else wait.ready(out.jpegBlob, () => share().then(wait.close).catch(() => {}));
-      }
-    } else {
-      download();
-      wait.close();
-    }
+    // appli installée : la fiche s'affiche tout de suite dans l'appli, sans transfert ni partage.
+    // Le bouton 🖨️ reste disponible pour l'envoyer à l'imprimante.
+    const canShare = !!navigator.canShare?.({ files: [out.file] });
+    wait.ready(out.jpegBlob, () => (canShare ? share().catch(() => {}) : download()));
     return out.pdf;
   } catch (e) {
     console.error(e);
@@ -393,10 +384,9 @@ function waitBox() {
   return {
     close,
     ready(jpegBlob, open) {
-      view.innerHTML = `<div class="pv-bar"><button class="btn primary" data-a="open">📄 Ouvrir la fiche</button><button class="btn small" data-a="close">✕</button></div><div class="pv-page"><img alt="Fiche météo du créneau choisi"/></div>`;
+      view.innerHTML = `<div class="pv-bar"><button class="btn small" data-a="print" aria-label="Imprimer">🖨️</button><button class="btn small primary" data-a="close">✕ Fermer</button></div><div class="pv-page"><img alt="Fiche météo du créneau choisi"/></div>`;
       view.querySelector('img').src = URL.createObjectURL(jpegBlob);
-      view.querySelector('[data-a="open"]').onclick = open;
-      view.querySelector('img').onclick = open;
+      view.querySelector('[data-a="print"]').onclick = open;
       view.querySelector('[data-a="close"]').onclick = close;
     },
     fail() {
