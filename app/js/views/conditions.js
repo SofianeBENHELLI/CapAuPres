@@ -5,7 +5,7 @@ import { levelOfKn } from '../core/weather.js';
 import { WINDS } from '../core/polar.js';
 import { compass, compassLong } from '../core/angles.js';
 import { windMapNode, updateWindMap } from '../ui/windmap.js';
-import { openSheet } from '../ui/meteopdf.js';
+import { openPdf } from '../ui/meteopdf.js';
 
 const num = (n, d = 1) => n.toLocaleString('fr-FR', { maximumFractionDigits: d });
 export const hhmm = (t) => t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -228,7 +228,7 @@ export function render(root) {
             <h1 class="h2">Météo de la baie de La Baule</h1>
             <span class="muted">Club nautique CNBPP · Le Pouliguen · <b id="ctitle"></b></span>
           </div>
-          <button class="btn small primary" id="cprint">🖨️ Imprimer / PDF</button>
+          <button class="btn small primary" id="cprint">🖨️ Imprimer</button>
           <button class="btn small ghost" id="crefresh" aria-label="Actualiser" title="${data.stale ? 'Hors ligne · ' : ''}Mis à jour à ${hhmm(new Date(data.fetchedAt))}">↻</button>
         </div>
         <p class="muted small-print met-src">${data.stale ? '⚠️ Hors ligne, dernière lecture à ' : 'Prévisions sur 7 jours, mises à jour à '}${hhmm(new Date(data.fetchedAt))} · modèles Météo-France (vent AROME et ARPEGE, vagues MFWAM) via Open-Meteo.</p>
@@ -322,8 +322,15 @@ const SPAN_H = 3;
 const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 const FLAG_ORDER = ['green', 'yellow', 'red', 'black', 'night'];
 
-async function printSheet(data, o, now, maxO, mapEl) {
+function printSheet(data, o, now, maxO, mapEl) {
   const at0 = atOffset(o, now);
+  const pad = (n) => String(n).padStart(2, '0');
+  const name = `meteo-la-baule-${at0.getFullYear()}-${pad(at0.getMonth() + 1)}-${pad(at0.getDate())}-${pad(at0.getHours())}h.pdf`;
+  let holder = null;
+  // l'onglet du PDF s'ouvre d'abord (pendant le clic), le contenu de la fiche est préparé ensuite
+  return openPdf(() => sheetModel(), name).finally(() => holder?.remove());
+
+  function sheetModel() {
   const slots = Array.from({ length: SPAN_H + 1 }, (_, k) => Math.min(maxO, o + k)).filter((v, i, a) => a.indexOf(v) === i).map((oo) => {
     const s = summarize(data, atOffset(oo, now), now);
     return { s, flag: flagFor(s) };
@@ -341,7 +348,7 @@ async function printSheet(data, o, now, maxO, mapEl) {
   const windDir = s.wind ? compassLong(s.wind.from) : '';
 
   // la courbe de marée doit être dans la page pour que son style soit lu
-  const holder = document.createElement('div');
+  holder = document.createElement('div');
   holder.style.cssText = 'position:absolute;left:-9999px;top:0;width:600px';
   holder.innerHTML = s.tide ? tideSVG(s.tide, s.at, slots.length - 1) : '';
   document.body.appendChild(holder);
@@ -374,11 +381,6 @@ async function printSheet(data, o, now, maxO, mapEl) {
     disclaimer: 'Météo à titre informatif. Vérifiez la météo avant votre sortie et demandez l’avis du responsable de la base ou de votre moniteur.',
     small: `Fiabilité de cette prévision : ${rel.label.toLowerCase()} (${rel.model}). Données Open-Meteo, modèles Météo-France · Marée : modèle océanique, l’annuaire du SHOM fait foi · Édité le ${now.toLocaleDateString('fr-FR')} à ${hhmm(now)} · voile.benhelli.org`,
   };
-  const pad = (n) => String(n).padStart(2, '0');
-  const name = `meteo-la-baule-${at0.getFullYear()}-${pad(at0.getMonth() + 1)}-${pad(at0.getDate())}-${pad(at0.getHours())}h.pdf`;
-  try {
-    return await openSheet(model, name);
-  } finally {
-    holder.remove();
+  return model;
   }
 }

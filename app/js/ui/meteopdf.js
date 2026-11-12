@@ -311,50 +311,97 @@ export function jpegToPdf(jpeg, wPx, hPx) {
   return new Blob(parts, { type: 'application/pdf' });
 }
 
-// ---------------------------------------------------------------- Affichage dans l'appli
-export async function openSheet(model, fileName) {
+// ---------------------------------------------------------------- Ouverture du PDF
+// Un seul geste : « Imprimer » ouvre le PDF.
+// - Dans un navigateur : un onglet s'ouvre tout de suite (pendant le clic, sinon il serait bloqué)
+//   et reçoit le PDF dès qu'il est prêt ; la visionneuse du navigateur sait l'imprimer.
+// - Appli installée sur l'écran d'accueil (tablette, téléphone) : pas d'onglet possible, on passe
+//   par la feuille de partage du système, qui affiche le PDF et propose Imprimer.
+const isStandalone = () => navigator.standalone === true || window.matchMedia?.('(display-mode: standalone)').matches;
+
+async function buildPdf(model, fileName) {
+  const canvas = await drawSheet(model);
+  const jpegBlob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.92));
+  const jpeg = new Uint8Array(await jpegBlob.arrayBuffer());
+  const pdf = jpegToPdf(jpeg, canvas.width, canvas.height);
+  return { pdf, jpegBlob, file: new File([pdf], fileName, { type: 'application/pdf' }), url: URL.createObjectURL(pdf) };
+}
+
+// `makeModel` est appelé après l'ouverture de l'onglet : rien ne doit retarder window.open.
+export async function openPdf(makeModel, fileName) {
+  let tab = null;
+  if (!isStandalone()) {
+    tab = window.open('', '_blank');
+    if (tab) {
+      tab.document.title = 'Fiche météo';
+      tab.document.body.innerHTML = '<p style="font:600 18px system-ui,sans-serif;color:#243150;text-align:center;margin-top:40vh">Préparation de la fiche météo…</p>';
+    }
+  }
+  const wait = tab ? null : waitBox();
+  try {
+    const out = await buildPdf(await makeModel(), fileName);
+    setTimeout(() => URL.revokeObjectURL(out.url), 10 * 60 * 1000);
+    if (tab && !tab.closed) {
+      // si l'appareil télécharge le PDF au lieu de l'afficher, l'onglet garde ce message et un lien
+      tab.document.body.innerHTML = '<p style="font:600 18px system-ui,sans-serif;color:#243150;text-align:center;margin-top:40vh">La fiche météo est prête.<br><br><a id="f">Ouvrir la fiche (PDF)</a><br><br><small>Si elle ne s’affiche pas, elle est dans vos téléchargements.</small></p>';
+      Object.assign(tab.document.getElementById('f'), { href: out.url, download: fileName });
+      tab.location.replace(out.url);
+      return out.pdf;
+    }
+    // pas d'onglet : feuille de partage, ou à défaut téléchargement
+    const share = () => navigator.share({ files: [out.file], title: 'Fiche météo · baie de La Baule' });
+    const download = () => {
+      const a = Object.assign(document.createElement('a'), { href: out.url, download: fileName });
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
+    if (navigator.canShare?.({ files: [out.file] })) {
+      try {
+        await share();
+        wait.close();
+      } catch (e) {
+        if (e.name === 'AbortError') wait.close();
+        // le système exige un nouveau geste : la fiche est prête, un toucher l'ouvre
+        else wait.ready(out.jpegBlob, () => share().then(wait.close).catch(() => {}));
+      }
+    } else {
+      download();
+      wait.close();
+    }
+    return out.pdf;
+  } catch (e) {
+    console.error(e);
+    if (tab && !tab.closed) tab.close();
+    (wait || waitBox()).fail();
+    return null;
+  }
+}
+
+// Petit écran d'attente (appli installée) : « Préparation… », puis au besoin la fiche à toucher.
+function waitBox() {
   document.querySelector('.pdf-view')?.remove();
   const view = document.createElement('div');
   view.className = 'pdf-view';
-  view.innerHTML = `<div class="pv-bar"><b>📄 Fiche météo</b><span class="pv-actions"></span><button class="btn small" data-a="close" aria-label="Fermer">✕ Fermer</button></div>
-    <div class="pv-page"><p class="pv-wait">Préparation de la fiche…</p></div>`;
+  view.innerHTML = '<div class="pv-page"><p class="pv-wait">Préparation de la fiche météo…</p></div>';
   document.body.appendChild(view);
   document.body.classList.add('pdf-open');
-  let url = null;
   const close = () => {
     view.remove();
     document.body.classList.remove('pdf-open');
-    document.removeEventListener('keydown', onKey);
-    if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  const onKey = (e) => e.key === 'Escape' && close();
-  document.addEventListener('keydown', onKey);
-  view.querySelector('[data-a="close"]').onclick = close;
-
-  try {
-    const canvas = await drawSheet(model);
-    const jpegBlob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.92));
-    const jpeg = new Uint8Array(await jpegBlob.arrayBuffer());
-    const pdf = jpegToPdf(jpeg, canvas.width, canvas.height);
-    const file = new File([pdf], fileName, { type: 'application/pdf' });
-    url = URL.createObjectURL(pdf);
-    if (!view.isConnected) return null;
-    const img = document.createElement('img');
-    img.alt = 'Fiche météo du créneau choisi';
-    img.src = URL.createObjectURL(jpegBlob);
-    view.querySelector('.pv-page').replaceChildren(img);
-    const canShare = !!navigator.canShare?.({ files: [file] });
-    const actions = view.querySelector('.pv-actions');
-    actions.innerHTML = `${canShare ? '<button class="btn small primary" data-a="share">📤 Partager / Imprimer</button>' : '<button class="btn small primary" data-a="open">🖨️ Ouvrir le PDF</button>'}
-      <a class="btn small" href="${url}" download="${fileName}">⬇️ Enregistrer le PDF</a>`;
-    actions.querySelector('[data-a="share"]')?.addEventListener('click', () => navigator.share({ files: [file], title: 'Fiche météo · baie de La Baule' }).catch(() => {}));
-    actions.querySelector('[data-a="open"]')?.addEventListener('click', () => {
-      if (!window.open(url, '_blank')) actions.querySelector('a').click();
-    });
-    return pdf;
-  } catch (e) {
-    console.error(e);
-    view.querySelector('.pv-page').innerHTML = '<p class="pv-wait">Impossible de préparer la fiche sur cet appareil.</p>';
-    return null;
-  }
+  return {
+    close,
+    ready(jpegBlob, open) {
+      view.innerHTML = `<div class="pv-bar"><button class="btn primary" data-a="open">📄 Ouvrir la fiche</button><button class="btn small" data-a="close">✕</button></div><div class="pv-page"><img alt="Fiche météo du créneau choisi"/></div>`;
+      view.querySelector('img').src = URL.createObjectURL(jpegBlob);
+      view.querySelector('[data-a="open"]').onclick = open;
+      view.querySelector('img').onclick = open;
+      view.querySelector('[data-a="close"]').onclick = close;
+    },
+    fail() {
+      view.innerHTML = '<div class="pv-page"><p class="pv-wait">Impossible de préparer la fiche sur cet appareil.</p><button class="btn" data-a="close">Fermer</button></div>';
+      view.querySelector('[data-a="close"]').onclick = close;
+    },
+  };
 }

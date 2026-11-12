@@ -1503,8 +1503,7 @@ html, body { overflow-x: clip; }
 /* ---- Fiche météo : aperçu du PDF dans l'appli ---- */
 .pdf-view { position: fixed; inset: 0; z-index: 300; background: rgba(20, 28, 54, 0.92); display: flex; flex-direction: column; }
 .pv-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: max(10px, calc(env(safe-area-inset-top) + 6px)) 12px 10px; background: var(--card); color: var(--ink); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25); }
-.pv-bar b { margin-right: auto; }
-.pv-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.pv-bar { justify-content: space-between; }
 .pv-page { flex: 1; min-height: 0; overflow: auto; padding: 14px; display: grid; justify-items: center; align-content: start; -webkit-overflow-scrolling: touch; }
 .pv-page img { width: min(100%, 820px); height: auto; background: #fff; border-radius: 4px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45); }
 .pv-wait { color: #fff; font-weight: 700; margin-top: 30vh; }
