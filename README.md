@@ -6,7 +6,7 @@ Application web (PWA) pour apprendre la voile en jouant dans la baie de La Baule
 
 - **École** : 7 leçons de base (`CORE_LESSONS`, qui comptent pour l'épreuve de Skipper) et 4 leçons « pour aller plus loin » : partir de la plage et revenir, dessaler et se redresser, météo et marée, la régate. Données dans `app/js/data/lessons.js`, écrans dans `app/js/views/theory.js` et `theory2.js`.
 - **Jeux** : défis dans la baie, 6 mini-jeux de réflexes (`views/reflexes.js`) et 5 quiz chronométrés (`views/quiz.js`) : quiz éclair, mots du marin, balisage, priorités, force du vent.
-- **Naviguer** : les missions. **Météo** : conditions et prévisions. **Profil** : grades, badges, sauvegarde.
+- **Naviguer** : les missions. **Météo** : baie de La Baule sur 7 jours (Open-Meteo, modèles Météo-France AROME/ARPEGE pour le vent et MFWAM pour les vagues), avec un indice de fiabilité selon l'échéance et une fiche A4 imprimable du créneau choisi (bouton « Imprimer », une page, enregistrable en PDF). **Profil** : grades, badges, sauvegarde.
 
 Code récupéré depuis la version en ligne https://voile.benhelli.org (le dépôt source d'origine avait été perdu). Les outils de build et les tests d'origine n'étaient pas publiés et manquent donc ici.
 

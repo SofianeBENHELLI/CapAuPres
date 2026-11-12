@@ -9,7 +9,7 @@ const API = 'api/profil/';
 let timer = null;
 let busy = false;
 let again = false;
-const status = { state: 'off', at: 0, error: '' };
+const status = { state: 'idle', at: 0, error: '' }; // idle : pas encore d'envoi depuis l'ouverture
 
 function emit() {
   window.dispatchEvent(new CustomEvent('cloudstatus', { detail: { ...status } }));

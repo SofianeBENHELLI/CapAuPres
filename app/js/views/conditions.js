@@ -1,5 +1,5 @@
 // Page « Conditions en temps réel » : météo, vent, vagues, marée et webcam de La Baule.
-import { loadConditions, summarize, flagFor, FLAGS, WEBCAM_URL, HORIZON_H, findWebcamThumb } from '../core/conditions.js';
+import { loadConditions, summarize, flagFor, FLAGS, WEBCAM_URL, HORIZON_H, findWebcamThumb, reliability, hourIndex } from '../core/conditions.js';
 import { getBoat } from '../core/boats.js';
 import { levelOfKn } from '../core/weather.js';
 import { WINDS } from '../core/polar.js';
@@ -24,7 +24,7 @@ export const flagSVG = (color, size = 34) => {
 };
 
 // Courbe de marée du jour affiché, avec pleines / basses mers et l'heure choisie.
-function tideSVG(tide, now) {
+function tideSVG(tide, now, spanH = 0) {
   const day0 = new Date(now);
   day0.setHours(0, 0, 0, 0);
   const day1 = day0.getTime() + 24 * 3600e3;
@@ -47,6 +47,7 @@ function tideSVG(tide, now) {
     <path d="${line}" class="tide-line"/>
     ${[0, 6, 12, 18, 24].map((h) => `<text x="${Math.min(W - 14, Math.max(14, (h / 24) * W))}" y="${H - 6}" class="tide-hour">${h}h</text>`).join('')}
     ${ext.map((e) => `<g><circle cx="${x(e.time.getTime())}" cy="${y(e.level)}" r="4" class="tide-dot"/><text x="${Math.min(W - 40, Math.max(40, x(e.time.getTime())))}" y="${e.type === 'PM' ? y(e.level) - 9 : y(e.level) + 16}" class="tide-lab">${e.type} ${hhmm(e.time)}</text></g>`).join('')}
+    ${spanH ? `<rect x="${nx}" y="${top - 14}" width="${Math.max(0, Math.min(W, x(now.getTime() + spanH * 3600e3)) - nx)}" height="${H - bot - top + 14}" class="tide-span"/>` : ''}
     <line x1="${nx}" x2="${nx}" y1="${top - 14}" y2="${H - bot}" class="tide-now"/>
   </svg>`;
 }
@@ -56,7 +57,7 @@ export function whenLabel(at, now = new Date()) {
   const d0 = new Date(now);
   d0.setHours(0, 0, 0, 0);
   const days = Math.floor((at - d0) / 86400e3);
-  const day = days <= 0 ? 'Aujourd’hui' : days === 1 ? 'Demain' : days === 2 ? 'Après-demain' : at.toLocaleDateString('fr-FR', { weekday: 'long' });
+  const day = days <= 0 ? 'Aujourd’hui' : days === 1 ? 'Demain' : days === 2 ? 'Après-demain' : (([w]) => w.charAt(0).toUpperCase() + w.slice(1))([at.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' })]);
   return `${day} ${at.getHours()}h`;
 }
 
@@ -90,9 +91,16 @@ function dayGroups(strip, now) {
     const day = g.hours.filter((h) => !h.night && h.flag && h.flag.color !== 'night');
     g.best = day.length ? day.reduce((a, h) => (rank[h.flag.color] - rank[a.flag.color] || Math.abs(h.kn - 10) - Math.abs(a.kn - 10)) < 0 ? h : a) : null;
     g.worst = day.reduce((m, h) => Math.max(m, rank[h.flag.color]), 0);
+    // fiabilité du jour : celle de son milieu de journée (ou de maintenant pour aujourd'hui)
+    const noon = new Date(g.date.getTime() + 13 * 3600e3);
+    g.rel = reliability(noon > now ? noon : now, now);
   }
   return groups;
 }
+
+// Indice de fiabilité : 4 points, de « très bonne » (aujourd'hui, demain) à « faible » (dans 6 jours).
+const relDots = (r, withLabel = false) =>
+  `<span class="rel rel-${r.level}" title="Fiabilité ${r.label.toLowerCase()} : ${r.model}" aria-label="Fiabilité ${r.label.toLowerCase()}">${[1, 2, 3, 4].map((k) => `<i class="${k <= r.level ? 'on' : ''}"></i>`).join('')}${withLabel ? `<small>Fiabilité ${r.label.toLowerCase()}</small>` : ''}</span>`;
 
 function dayTabs(groups, selK) {
   const color = ['green', 'yellow', 'red', 'black'];
@@ -100,6 +108,7 @@ function dayTabs(groups, selK) {
     <b>${g.name}</b><small>${DAY_FMT(g.date)}</small>
     <span class="day-dots" aria-hidden="true">${g.hours.filter((h) => !h.night).map((h) => `<i class="dot-${h.flag?.color || 'none'}"></i>`).join('')}</span>
     ${g.best ? `<small class="day-best">Meilleur : ${g.best.at.getHours()}h</small>` : `<small class="day-best muted">Nuit</small>`}
+    ${relDots(g.rel)}
   </button>`).join('');
 }
 
@@ -126,6 +135,7 @@ function summaryCard(flag, s) {
       <div class="met-sum-txt">
         <small>Pour tout le club · ${s.live ? 'maintenant' : whenLabel(s.at).toLowerCase()}</small>
         <b>${(([l]) => l.charAt(0).toUpperCase() + l.slice(1))([flag.label.replace('Drapeau ', '')])} · ${flag.text}</b>
+        ${s.live ? '' : relDots(reliability(s.at), true)}
       </div>
     </div>
     <div class="met-kpis">
@@ -198,8 +208,11 @@ export function render(root) {
     }
     const now = new Date();
     const boat = getBoat();
-    // drapeau de chaque heure des 48 prochaines : la frise montre d'un coup d'œil les bons créneaux
-    const strip = Array.from({ length: HORIZON_H + 1 }, (_, o) => {
+    // drapeau de chaque heure des 7 prochains jours : la frise montre d'un coup d'œil les bons créneaux
+    const times = data.forecast?.hourly?.time || data.marine?.hourly?.time || [];
+    const maxO = Math.max(0, Math.min(HORIZON_H, times.length - 1 - hourIndex(times, now)));
+    if (offset > maxO) offset = 0;
+    const strip = Array.from({ length: maxO + 1 }, (_, o) => {
       const at = atOffset(o, now);
       const sum = summarize(data, at, now);
       return { o, at, night: sum.night, flag: flagFor(sum, boat.id), kn: sum.wind?.kn ?? 0, gust: sum.wind?.gust ?? 0, from: sum.wind?.from ?? 0, sky: sum.sky, waves: sum.waves?.height };
@@ -209,16 +222,21 @@ export function render(root) {
     box.innerHTML = `
       <div class="met">
         <div class="met-head">
-          <h1 class="h2" id="ctitle"></h1>
-          <span class="muted small-print">${data.stale ? '⚠️ hors ligne · ' : ''}màj ${hhmm(new Date(data.fetchedAt))}</span>
-          <button class="btn small ghost" id="crefresh" aria-label="Actualiser">↻</button>
+          <img src="assets/cnbpp-rond.png" alt="" class="met-logo" />
+          <div class="met-title">
+            <h1 class="h2">Météo de la baie de La Baule</h1>
+            <span class="muted">Club nautique CNBPP · Le Pouliguen · <b id="ctitle"></b></span>
+          </div>
+          <button class="btn small primary" id="cprint">🖨️ Imprimer</button>
+          <button class="btn small ghost" id="crefresh" aria-label="Actualiser" title="${data.stale ? 'Hors ligne · ' : ''}Mis à jour à ${hhmm(new Date(data.fetchedAt))}">↻</button>
         </div>
+        <p class="muted small-print met-src">${data.stale ? '⚠️ Hors ligne, dernière lecture à ' : 'Prévisions sur 7 jours, mises à jour à '}${hhmm(new Date(data.fetchedAt))} · modèles Météo-France (vent AROME et ARPEGE, vagues MFWAM) via Open-Meteo.</p>
         <div class="met-top">
           <div id="cflag" aria-live="polite"></div>
           <div id="ccam"></div>
         </div>
         <div class="card time-card">
-          <div class="tc-head"><h2 class="h3">🗓️ Créneau</h2><button class="btn small" id="cnowbtn">Maintenant</button></div>
+          <div class="tc-head"><h2 class="h3">🗓️ Créneau · 7 jours</h2><button class="btn small" id="cnowbtn">Maintenant</button></div>
           <div class="day-tabs" id="cdays" role="tablist" aria-label="Jour"></div>
           <div class="hour-scroll" id="chours" role="listbox" aria-label="Heure" tabindex="0"></div>
         </div>
@@ -237,7 +255,7 @@ export function render(root) {
     const show = (o) => {
       offset = o;
       const s = summarize(data, atOffset(o, now), now);
-      box.querySelector('#ctitle').textContent = s.live ? '🌊 Météo · maintenant' : `🔭 Météo · ${whenLabel(s.at, now)}`;
+      box.querySelector('#ctitle').textContent = s.live ? 'maintenant' : whenLabel(s.at, now).toLowerCase();
       const flag = flagFor(s, boat.id);
       box.querySelector('#cflag').innerHTML = summaryCard(flag, s);
       box.querySelector('#ccontent').innerHTML = details(s);
@@ -269,10 +287,11 @@ export function render(root) {
       const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
       if (!d) return;
       e.preventDefault();
-      show(Math.max(0, Math.min(HORIZON_H, offset + d)));
+      show(Math.max(0, Math.min(maxO, offset + d)));
       box.querySelector('#chours .hour-card.active')?.focus();
     };
     box.querySelector('#cnowbtn').onclick = () => show(0);
+    box.querySelector('#cprint').onclick = () => printSheet(data, offset, now, maxO, box.querySelector('.wm-map'));
     box.querySelector('#crefresh').onclick = (e) => {
       e.target.disabled = true;
       load(true);
@@ -291,4 +310,100 @@ export function render(root) {
     alive = false;
     wmap?.destroy();
   };
+}
+
+
+// ---------------------------------------------------------------- Fiche A4 à imprimer
+// Une page, toujours la même : le créneau choisi et ses 3 heures suivantes, la carte de la baie
+// (vent et courant), la marée, le drapeau. « Imprimer » ouvre la boîte d'impression du navigateur,
+// d'où l'on peut aussi enregistrer en PDF.
+const SPAN_H = 3;
+const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
+function printSheet(data, o, now, maxO, mapEl) {
+  const at0 = atOffset(o, now);
+  const slots = Array.from({ length: SPAN_H + 1 }, (_, k) => Math.min(maxO, o + k)).filter((v, i, a) => a.indexOf(v) === i).map((oo) => {
+    const s = summarize(data, atOffset(oo, now), now);
+    return { s, flag: flagFor(s) };
+  });
+  const { s, flag } = slots[0];
+  const end = slots[slots.length - 1].s.at;
+  const hh = (d) => `${d.getHours()} h${d.getMinutes() ? String(d.getMinutes()).padStart(2, '0') : ''}`;
+  const dateTxt = cap(at0.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
+  const rel = reliability(at0, now);
+  const worst = slots.reduce((m, x) => (['green', 'yellow', 'red', 'black', 'night'].indexOf(x.flag?.color) > ['green', 'yellow', 'red', 'black', 'night'].indexOf(m?.color) ? x.flag : m), flag);
+  const ext = s.tide?.extremes.filter((e) => e.time > s.at) || [];
+  const marnage = ext.length > 1 ? Math.abs(ext[0].level - ext[1].level) : null;
+  // le pourquoi du drapeau le plus sévère du créneau, puis les avertissements (sans doublon)
+  const notes = [...new Set([...(worst?.why || []), ...slots.flatMap((x) => x.flag?.warnings || []).map((w) => w.replace(/\(\+\d+ nds\)/, '').replace(/\s+:/, ' :'))])].slice(0, 4);
+  const cell = (label, big, small = '') => `<div class="ps-kpi"><small>${label}</small><b>${big}</b><span>${small}</span></div>`;
+  const row = (label, f) => `<tr><th>${label}</th>${slots.map((x) => `<td>${f(x)}</td>`).join('')}</tr>`;
+  const map = mapEl ? mapEl.outerHTML.replace(/id="[^"]*"/g, '') : '';
+
+  document.getElementById('printSheet')?.remove();
+  const sheet = document.createElement('div');
+  sheet.id = 'printSheet';
+  sheet.innerHTML = `
+    <header class="ps-head">
+      <img src="assets/cnbpp-logo.png" alt="CNBPP"/>
+      <div>
+        <h1>Météo de la baie de La Baule</h1>
+        <p>Club nautique CNBPP · Le Pouliguen</p>
+        <p class="ps-when">${dateTxt} · de ${hh(at0)} à ${hh(end)}</p>
+      </div>
+      <div class="ps-flag flag-bg-${worst?.color || 'none'}">${worst ? flagSVG(worst.color, 54) : ''}<b>${worst ? cap(worst.label.replace('Drapeau ', '')) : ''}</b><span>${worst?.text || ''}</span></div>
+    </header>
+
+    <section class="ps-kpis">
+      ${s.wind ? cell('Vent', `${s.wind.kn} nds`, `rafales ${s.wind.gust} · ${compassLong(s.wind.from)} · force ${s.wind.bf}`) : ''}
+      ${s.waves ? cell('Vagues au large', `${num(s.waves.height)} m`, `période ${num(s.waves.period, 0)} s · houle de ${compass(s.waves.from)}`) : ''}
+      ${s.tide ? cell('Marée', s.tide.rising ? '↗ Montante' : '↘ Descendante', `${ext.slice(0, 2).map((e) => `${e.type === 'PM' ? 'PM' : 'BM'} ${hhmm(e.time)}`).join(' · ')}${marnage ? ` · marnage ${num(marnage)} m` : ''}`) : ''}
+      ${s.sky ? cell('Ciel', `${s.sky.icon} ${s.temp}°`, `${s.sky.label}${s.water != null ? ` · eau ${num(s.water, 0)}°` : ''}`) : ''}
+      ${s.current ? cell('Courant', `${num(s.current.kn)} nd`, `vers ${compass(s.current.to)}`) : ''}
+    </section>
+
+    <section class="ps-table">
+      <h2>Évolution sur le créneau</h2>
+      <table>
+        <tr><th></th>${slots.map((x) => `<th>${hh(x.s.at)}</th>`).join('')}</tr>
+        ${row('Drapeau', (x) => (x.flag ? `${flagSVG(x.flag.color, 20)} ${cap(x.flag.label.replace('Drapeau ', ''))}` : ''))}
+        ${row('Vent moyen', (x) => (x.s.wind ? `<b>${x.s.wind.kn}</b> nds` : '-'))}
+        ${row('Rafales', (x) => (x.s.wind ? `${x.s.wind.gust} nds` : '-'))}
+        ${row('Direction', (x) => (x.s.wind ? `${arrow(x.s.wind.from, 16)} ${compass(x.s.wind.from)}` : '-'))}
+        ${row('Vagues', (x) => (x.s.waves ? `${num(x.s.waves.height)} m` : '-'))}
+        ${row('Ciel', (x) => (x.s.sky ? `${x.s.sky.icon} ${x.s.temp}°` : '-'))}
+      </table>
+    </section>
+
+    <section class="ps-map">
+      <h2>Vent et courant sur la baie à ${hh(at0)}</h2>
+      <div class="ps-mapbox">${map}</div>
+      <p>${s.wind ? `Flèches : vent ${/^[EO]/.test(compassLong(s.wind.from)) ? 'd’' : 'de '}${compassLong(s.wind.from)}, ${s.wind.kn} nds, rafales ${s.wind.gust}.` : ''} ${s.current ? `Chevrons : courant ${num(s.current.kn)} nd vers ${compass(s.current.to)}.` : ''} Carte indicative, ne sert pas à naviguer.</p>
+    </section>
+
+    ${s.tide ? `<section class="ps-tide">
+      <h2>Marée du jour · ${s.tide.rising ? 'elle monte' : 'elle descend'} à ${hh(at0)}${marnage ? ` · marnage ≈ ${num(marnage)} m` : ''}</h2>
+      ${tideSVG(s.tide, s.at, slots.length - 1)}
+    </section>` : ''}
+
+    ${notes.length ? `<section class="ps-notes"><h2>À savoir</h2><ul>${notes.map((n) => `<li>${cap(n)}</li>`).join('')}</ul></section>` : ''}
+
+    <footer class="ps-foot">
+      <b>Météo à titre informatif. Vérifiez la météo avant votre sortie et demandez l’avis du responsable de la base ou de votre moniteur.</b>
+      <span>Fiabilité de cette prévision : ${rel.label.toLowerCase()} (${rel.model}). Données Open-Meteo, modèles Météo-France · Marée : modèle océanique, l’annuaire du SHOM fait foi · Édité le ${now.toLocaleDateString('fr-FR')} à ${hhmm(now)} · voile.benhelli.org</span>
+    </footer>`;
+  document.body.appendChild(sheet);
+  const done = () => {
+    sheet.remove();
+    window.removeEventListener('afterprint', done);
+  };
+  window.addEventListener('afterprint', done);
+  // on laisse le logo se charger avant d'ouvrir la boîte d'impression
+  const img = sheet.querySelector('img');
+  const go = () => window.print();
+  if (img.complete) go();
+  else {
+    img.onload = go;
+    img.onerror = go;
+  }
 }

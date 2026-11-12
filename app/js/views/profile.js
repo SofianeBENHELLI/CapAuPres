@@ -7,7 +7,8 @@ import { saveBackup, pickBackup, openProfile, dateFr } from '../ui/backup.js';
 import { xpBreakdown, gradeOf, GRADES, BADGES, earnedBadges, examChecks } from '../core/progress.js';
 import { perksOf } from '../core/look.js';
 import { boatIcon } from '../ui/boat.js';
-import { schedule, cloudStatus } from '../core/cloud.js';
+import { schedule, cloudStatus, peek } from '../core/cloud.js';
+import { mergeProfiles, normalizeName } from '../core/merge.js';
 import { dateInputHTML, bindDateInput } from '../ui/dateinput.js';
 import { lookPickerHTML, bindLookPicker } from '../ui/lookpicker.js';
 
@@ -37,6 +38,22 @@ export function render(root, params = []) {
               ${dateInputHTML('pbirth', store.birth)}
             </div>
             <p class="cloud-line" id="cloudLine" role="status"></p>
+            <div class="acct-switch">
+              <button class="btn small primary" id="findBtn" aria-expanded="false">🔄 Retrouver un compte existant</button>
+              ${store.profiles().filter((p) => !p.current && p.name).slice(0, 3).map((p) => `<button class="btn small" data-open="${p.id}">⛵ Reprendre ${esc(p.name)}</button>`).join('')}
+            </div>
+            <form class="acct-find" id="findForm" hidden novalidate>
+              <b>Retrouver un compte</b>
+              <span class="muted">Tape le pseudo et la date de naissance du compte : sa progression se charge sur cet appareil. Le compte actuel reste enregistré ici.</span>
+              <div class="id-fields">
+                <label class="name-field">Pseudo
+                  <input id="fname" maxlength="24" autocomplete="off" autocapitalize="off" placeholder="Pseudo du compte" />
+                </label>
+                ${dateInputHTML('fbirth', '')}
+              </div>
+              <div class="row"><button class="btn primary small" type="submit" id="findGo">Retrouver</button><button class="btn small ghost" type="button" id="findCancel">Annuler</button></div>
+              <small class="save-msg" id="findMsg" role="status"></small>
+            </form>
             <h2 style="margin:8px 0 0">${g.name}</h2>
             <span class="xpbar big"><i style="width:${Math.round(g.pct * 100)}%"></i></span>
             <small class="muted">${xp.total} XP${!g.next ? ' · grade maximal atteint !' : g.blocked ? ` · XP atteints pour <b>${g.next.icon} ${g.next.name}</b> : il reste l’épreuve` : ` · prochain grade : <b>${g.next.icon} ${g.next.name}</b> à ${g.next.xp} XP`}</small>
@@ -166,6 +183,49 @@ export function render(root, params = []) {
     if (el) el.textContent = ok
       ? 'Le navigateur la protège : il ne l’effacera pas pour faire de la place.'
       : 'Elle reste tant que les données du site ne sont pas effacées. Pense à faire une sauvegarde de temps en temps.';
+  });
+  // Retrouver un compte existant : pseudo + date de naissance, et sa progression remplace l'écran.
+  const findForm = root.querySelector('#findForm');
+  const findBtn = root.querySelector('#findBtn');
+  let findBirth = '';
+  bindDateInput(root.querySelector('#fbirth'), (iso) => (findBirth = iso));
+  const toggleFind = (open) => {
+    findForm.hidden = !open;
+    findBtn.setAttribute('aria-expanded', open);
+    if (open) root.querySelector('#fname').focus();
+  };
+  findBtn.addEventListener('click', () => toggleFind(findForm.hidden));
+  root.querySelector('#findCancel').addEventListener('click', () => toggleFind(false));
+  root.querySelectorAll('.acct-switch [data-open]').forEach((b) => b.addEventListener('click', () => openProfile(() => store.switchProfile(b.dataset.open))));
+  findForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = root.querySelector('#fname').value.trim();
+    const m = root.querySelector('#findMsg');
+    const go = root.querySelector('#findGo');
+    const say = (t, bad) => { m.textContent = t; m.classList.toggle('bad', !!bad); };
+    if (!name) return say('Tape le pseudo du compte.', true);
+    if (!findBirth) return say('Date de naissance au format JJ/MM/AAAA, par exemple 27/12/2012.', true);
+    if (normalizeName(name) === normalizeName(store.name) && findBirth === store.birth) return say('C’est déjà le compte ouvert sur cet appareil.');
+    go.disabled = true;
+    say('Recherche du compte…');
+    let remote = null;
+    try {
+      remote = await peek(name, findBirth);
+    } catch {
+      go.disabled = false;
+      return say('Impossible de joindre le serveur : vérifie ta connexion.', true);
+    }
+    go.disabled = false;
+    if (!remote) return say('Aucun compte trouvé avec ce pseudo et cette date de naissance. Vérifie l’orthographe et la date.', true);
+    say('✓ Compte retrouvé, chargement…');
+    openProfile(() => {
+      store.newProfile(); // le compte actuel reste dans « Qui navigue sur cet appareil ? »
+      store.setName(name);
+      store.setBirth(findBirth);
+      store.adopt(mergeProfiles(store.snapshot(), remote));
+      const xp = xpBreakdown(); // progression retrouvée : pas de cérémonie d'XP
+      store.setSeenXp(xp, gradeOf(xp.total).index);
+    });
   });
   root.querySelector('.profile-list').addEventListener('click', (e) => {
     const open = e.target.closest('[data-open]');

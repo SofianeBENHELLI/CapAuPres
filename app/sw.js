@@ -2,7 +2,7 @@
 // La liste des fichiers et la version sont générées par `npm run build` (tools/build-sw.mjs).
 
 // <precache>
-const VERSION = 'b17-cata-sans-bome';
+const VERSION = 'b18-meteo7j-impression';
 const ASSETS = [
   './',
   './assets/cnbpp-logo.png',

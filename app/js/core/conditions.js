@@ -1,5 +1,5 @@
 // Conditions en temps réel devant La Baule : météo, vent, vagues, marée (Open-Meteo, sans clé,
-// CORS autorisé). Mises en cache 20 minutes ; hors ligne, on ressert la dernière lecture.
+// CORS autorisé), sur 7 jours. Mises en cache 20 minutes ; hors ligne, on ressert la dernière lecture.
 // La marée vient d'un modèle océanique : indicative, l'annuaire du SHOM fait foi.
 
 const LAT = 47.25;
@@ -9,13 +9,27 @@ const FORECAST_URL =
   `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}` +
   '&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m' +
   '&hourly=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m' +
-  `&daily=sunrise,sunset&wind_speed_unit=kn&timezone=${TZ}&forecast_days=3`;
+  `&daily=sunrise,sunset&wind_speed_unit=kn&timezone=${TZ}&forecast_days=7`;
 const MARINE_URL =
   `https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}` +
   '&hourly=wave_height,wave_direction,wave_period,sea_level_height_msl,sea_surface_temperature,ocean_current_velocity,ocean_current_direction' +
-  `&timezone=${TZ}&forecast_days=3&cell_selection=sea`;
-const KEY = 'capaupres.conditions.v3';
-export const HORIZON_H = 48;
+  `&timezone=${TZ}&forecast_days=7&cell_selection=sea`;
+const KEY = 'capaupres.conditions.v4';
+export const HORIZON_H = 7 * 24; // 7 jours : au-delà de 4 jours, la prévision devient une tendance
+
+// Fiabilité d'une prévision selon son échéance. Open-Meteo sert ici les modèles de Météo-France :
+// AROME (maille fine, 2 jours), puis ARPEGE (4 jours), puis un modèle mondial ; les vagues viennent
+// du modèle MFWAM de Météo-France.
+export const RELIABILITY = [
+  { max: 48, level: 4, label: 'Très bonne', model: 'modèle AROME de Météo-France, à maille fine' },
+  { max: 96, level: 3, label: 'Bonne', model: 'modèle ARPEGE de Météo-France' },
+  { max: 120, level: 2, label: 'Moyenne', model: 'modèle mondial : une tendance' },
+  { max: Infinity, level: 1, label: 'Faible', model: 'modèle mondial : à confirmer les jours suivants' },
+];
+export function reliability(at, now = new Date()) {
+  const h = Math.max(0, (at - now) / 3600e3);
+  return RELIABILITY.find((r) => h < r.max);
+}
 const FRESH_MS = 20 * 60 * 1000;
 
 export const WEBCAM_URL = 'https://www.skaping.com/la-baule/plage/video';

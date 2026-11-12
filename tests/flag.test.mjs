@@ -30,3 +30,16 @@ test('nuit et orage restent prioritaires', () => {
   assert.equal(flagFor(s(10, 14, 250, 0.5, { night: true })).color, 'night');
   assert.equal(flagFor(s(10, 14, 250, 0.5, { sky: { label: 'Orage' } })).color, 'black');
 });
+
+test('fiabilité : elle baisse avec l’échéance, sur 7 jours', async () => {
+  const { reliability, HORIZON_H } = await import('../app/js/core/conditions.js');
+  const now = new Date(2026, 10, 12, 10);
+  const at = (h) => new Date(now.getTime() + h * 3600e3);
+  assert.equal(HORIZON_H, 168);
+  assert.equal(reliability(at(0), now).level, 4);
+  assert.equal(reliability(at(47), now).level, 4);
+  assert.equal(reliability(at(60), now).level, 3);
+  assert.equal(reliability(at(100), now).level, 2);
+  assert.equal(reliability(at(150), now).level, 1);
+  assert.match(reliability(at(150), now).label, /Faible/);
+});
