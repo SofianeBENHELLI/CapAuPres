@@ -81,21 +81,29 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   });
 
   navigator.serviceWorker
-    .register('sw.js')
+    .register('sw.js', { updateViaCache: 'none' })
     .then((reg) => {
-      if (reg.waiting && navigator.serviceWorker.controller) promptUpdate(reg.waiting);
+      // Une nouvelle version attendait déjà à l'ouverture : on l'applique tout de suite, sans rien demander
+      // (on vient d'arriver, il n'y a rien à interrompre).
+      if (reg.waiting && navigator.serviceWorker.controller) reg.waiting.postMessage('SKIP_WAITING');
+      const opened = Date.now();
       reg.addEventListener('updatefound', () => {
         const w = reg.installing;
         if (!w) return;
         w.addEventListener('statechange', () => {
           if (w.state !== 'installed') return;
           // première installation : rien à proposer, l'app est simplement prête hors ligne
-          if (navigator.serviceWorker.controller) promptUpdate(w);
+          // trouvée dans les premières secondes : on l'applique directement ; plus tard, on demande
+          if (navigator.serviceWorker.controller) {
+            if (Date.now() - opened < 15000) w.postMessage('SKIP_WAITING');
+            else promptUpdate(w);
+          }
           else showBanner('✅ Application prête à fonctionner hors ligne.', { timeout: 4000 });
         });
       });
       // vérifie régulièrement s'il existe une nouvelle version
       const check = () => reg.update().catch(() => {});
+      check();
       document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && check());
       setInterval(check, 30 * 60 * 1000);
     })
