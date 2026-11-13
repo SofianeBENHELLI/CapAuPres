@@ -134,14 +134,14 @@ function summaryCard(flag, s) {
     <div class="met-sum-top">
       ${flagSVG(flag.color, 52)}
       <div class="met-sum-txt">
-        <small>Pour tout le club · ${s.live ? 'maintenant' : whenLabel(s.at).toLowerCase()}</small>
-        <b>${(([l]) => l.charAt(0).toUpperCase() + l.slice(1))([flag.label.replace('Drapeau ', '')])} · ${flag.text}</b>
+        <small><span class="met-long">Pour tout le club · </span>${s.live ? 'maintenant' : whenLabel(s.at).toLowerCase()}</small>
+        <b><span class="met-long">${(([l]) => l.charAt(0).toUpperCase() + l.slice(1))([flag.label.replace('Drapeau ', '')])} · </span>${flag.text}</b>
         ${s.live ? '' : relDots(reliability(s.at), true)}
       </div>
     </div>
     <div class="met-kpis">
-      ${s.wind ? `<span class="kpi">${arrow(s.wind.from, 22)}<b>${s.wind.kn}</b><small>nds · raf. ${s.wind.gust}<br>${compass(s.wind.from)}</small></span>` : ''}
-      ${s.waves ? `<span class="kpi"><span class="kpi-ico">🌊</span><b>${num(s.waves.height)}</b><small>m<br>${num(s.waves.period, 0)} s</small></span>` : ''}
+      ${s.wind ? `<span class="kpi">${arrow(s.wind.from, 22)}<b>${s.wind.kn}<i> nds</i></b><small>raf. ${s.wind.gust} · ${compass(s.wind.from)}</small></span>` : ''}
+      ${s.waves ? `<span class="kpi"><span class="kpi-ico">🌊</span><b>${num(s.waves.height)}<i> m</i></b><small>période ${num(s.waves.period, 0)} s</small></span>` : ''}
       ${s.sky ? `<span class="kpi"><span class="kpi-ico">${s.night ? '🌙' : s.sky.icon}</span><b>${s.temp}°</b><small>${s.water != null ? `eau ${num(s.water, 0)}°` : ''}</small></span>` : ''}
       ${next ? `<span class="kpi"><span class="kpi-ico">${next.type === 'PM' ? '⬆️' : '⬇️'}</span><b>${hhmm(next.time)}</b><small>${next.type === 'PM' ? 'pleine mer' : 'basse mer'}</small></span>` : ''}
     </div>
@@ -165,7 +165,7 @@ function camCard() {
   return `<a class="card met-cam" href="${WEBCAM_URL}" target="_blank" rel="noopener" aria-label="Webcam de la plage de La Baule, en direct">
     <span class="cam-img">${thumb ? `<img src="${thumb.url}" alt="La plage de La Baule à ${hhmm(thumb.time)}"/>` : '<span class="cam-ph" aria-hidden="true">📹</span>'}</span>
     <span class="cam-badge">● EN DIRECT</span>
-    <span class="cam-cap">${thumb ? `La plage à ${hhmm(thumb.time)}` : 'La plage de La Baule'} · voir le direct ↗<small>© Skaping</small></span>
+    <span class="cam-cap">${thumb ? `La plage à ${hhmm(thumb.time)}` : 'La plage de La Baule'} · <span class="met-long">voir le </span>direct ↗<small>© Skaping</small></span>
   </a>`;
 }
 
@@ -225,13 +225,13 @@ export function render(root) {
         <div class="met-head">
           <img src="assets/cnbpp-rond.png" alt="" class="met-logo" />
           <div class="met-title">
-            <h1 class="h2">Météo de la baie de La Baule</h1>
-            <span class="muted">Club nautique CNBPP · Le Pouliguen · <b id="ctitle"></b></span>
+            <h1 class="h2">Météo<span class="met-long"> de la</span> <span class="met-xs">baie de </span>La Baule</h1>
+            <span class="muted"><span class="met-long">Club nautique </span>CNBPP · Le Pouliguen<span class="met-long"> · <b id="ctitle"></b></span></span>
           </div>
-          <button class="btn small primary" id="cprint">🖨️ Imprimer</button>
+          <button class="btn small primary" id="cprint" aria-label="Imprimer">🖨️<span class="met-long"> Imprimer</span></button>
           <button class="btn small ghost" id="crefresh" aria-label="Actualiser" title="${data.stale ? 'Hors ligne · ' : ''}Mis à jour à ${hhmm(new Date(data.fetchedAt))}">↻</button>
         </div>
-        <p class="muted small-print met-src">${data.stale ? '⚠️ Hors ligne, dernière lecture à ' : 'Prévisions sur 7 jours, mises à jour à '}${hhmm(new Date(data.fetchedAt))} · modèles Météo-France (vent AROME et ARPEGE, vagues MFWAM) via Open-Meteo.</p>
+        <p class="muted small-print met-src">${data.stale ? '⚠️ Hors ligne, dernière lecture à ' : '<span class="met-long">Prévisions sur 7 jours, mises à jour</span><span class="met-short">Mis à jour</span> à '}${hhmm(new Date(data.fetchedAt))} · modèles Météo-France<span class="met-long"> (vent AROME et ARPEGE, vagues MFWAM) via Open-Meteo.</span></p>
         <div class="met-top">
           <div id="cflag" aria-live="polite"></div>
           <div id="ccam"></div>

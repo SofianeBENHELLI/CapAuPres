@@ -1483,6 +1483,9 @@ html, body { overflow-x: clip; }
 .met-title h1 { margin: 0; font-size: clamp(1.15rem, 3.4vw, 1.6rem); white-space: normal; overflow: visible; }
 .met-title span { font-size: 0.85rem; }
 .met-src { margin: -6px 0 0; }
+.met-short { display: none; }
+.met-kpis .kpi b i { font-style: normal; font-size: 0.55em; font-weight: 600; color: var(--muted); }
+.met-kpis .kpi small { white-space: nowrap; }
 .day-tabs { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 4px; scrollbar-width: thin; }
 .day-tab { flex: 1 0 118px; scroll-snap-align: start; }
 .rel { display: inline-flex; align-items: center; gap: 3px; margin-top: 2px; }
@@ -1496,7 +1499,16 @@ html, body { overflow-x: clip; }
 .tide-span { fill: var(--orange); opacity: 0.18; }
 @media (max-width: 520px) {
   .met-logo { width: 38px; height: 38px; }
-  .met-head #cprint { padding: 6px 10px; font-size: 0.8rem; }
+  .met-head #cprint { padding: 6px 11px; font-size: 1rem; }
+  .met-long { display: none; }
+  .met-short { display: inline; }
+  .met-title h1 { font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .met-title span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .met-src { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .met-sum-txt b { font-size: 1rem; }
+  .met-cam .cam-cap { font-size: 0.9rem; white-space: nowrap; }
+  .met .tc-head h2 { white-space: nowrap; font-size: 1.05rem; }
+  .met .tc-head .btn { padding: 6px 10px; font-size: 0.85rem; }
   .day-tab { flex-basis: 104px; }
 }
 
@@ -1514,3 +1526,6 @@ body.pdf-open { overflow: hidden; }
 .acct-find { display: grid; gap: 8px; margin-top: 10px; padding: 12px 14px; border-radius: 14px; background: var(--sky-soft); }
 .acct-find > span { font-size: 13px; }
 .acct-find input { background: var(--card); }
+@media (max-width: 360px) {
+  .met-xs { display: none; }
+}
